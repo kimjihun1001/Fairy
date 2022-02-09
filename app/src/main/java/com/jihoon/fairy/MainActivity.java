@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.DB.FairyDBHelper;
+import com.jihoon.fairy.DB.FairyDBManager;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -93,12 +94,12 @@ public class MainActivity extends AppCompatActivity {
         textView_date = findViewById(R.id.textView_date);
         textView_time = findViewById(R.id.textView_time);
 
+        sqliteDB = init_database();
+        init_tables(); // 테이블 생성
 
-//
-//        sqliteDB = init_database();
-//        init_tables(); // 테이블 생성
-//
-//        load_values() ; // 데이터 조회
+        // 싱글톤 변경 필요함(잘 모르겠네;)
+        FairyDBManager fairyDBManager = new FairyDBManager();
+        fairyDBManager.load_values(fairyDBHelper);// 데이터 조회
 
         try{
             tflite=new Interpreter(loadmodelfile(MainActivity.this));

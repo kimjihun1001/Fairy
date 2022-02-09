@@ -27,19 +27,4 @@ public class FairyDBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onCreate(db);
     }
-
-    private void load_values(FairyDBHelper fairyDBHelper) {
-
-        SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery(Const.SQL_SELECT_TBL_EMOTIONS, null);
-
-        if (cursor.moveToFirst()) {
-            // COL_NO 값 가져오기
-            String RegistrationDate = cursor.getString(1);
-            String RegistrationTime = cursor.getString(2);
-            Double happinessDegree = cursor.getDouble(3);
-            Double neutralDegree = cursor.getDouble(4);
-            Double sadnessDegree = cursor.getDouble(5);
-        }
-    }
 }
