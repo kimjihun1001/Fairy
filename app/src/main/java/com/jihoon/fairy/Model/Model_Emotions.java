@@ -1,15 +1,25 @@
 package com.jihoon.fairy.Model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Model_Emotions {
 
-    // RegistrationTime
-    private LocalDateTime RegistrationTime;
-    public LocalDateTime getRegistrationTime() {
+    // RegistrationDate (측정날짜)
+    private LocalDate RegistrationDate;
+    public LocalDate getRegistrationDate() {
+        return this.RegistrationDate;
+    }
+    public void setRegistrationDate(LocalDate RegistrationDate) {
+        this.RegistrationDate = RegistrationDate;
+    }
+
+    // RegistrationTime (측정시간)
+    private LocalTime RegistrationTime;
+    public LocalTime getRegistrationTime() {
         return this.RegistrationTime;
     }
-    public void setRegistrationTime(LocalDateTime RegistrationTime) {
+    public void setRegistrationTime(LocalTime RegistrationTime) {
         this.RegistrationTime = RegistrationTime;
     }
 

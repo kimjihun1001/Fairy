@@ -2,9 +2,6 @@ package com.jihoon.fairy;
 
 import androidx.annotation.RequiresApi;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
@@ -19,19 +16,18 @@ import android.content.res.AssetFileDescriptor;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 import com.jihoon.fairy.Const.Const;
+import com.jihoon.fairy.DB.FairyDBHelper;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -54,16 +50,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -100,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
         textView_result = findViewById(R.id.textView_result);
         textView_date = findViewById(R.id.textView_date);
         textView_time = findViewById(R.id.textView_time);
+
+
 //
 //        sqliteDB = init_database();
 //        init_tables(); // 테이블 생성
@@ -230,24 +224,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void init_tables() {
         fairyDBHelper = new FairyDBHelper(this);
-    }
-
-    private void load_values() {
-        SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery(Const.SQL_SELECT_TBL_EMOTIONS, null);
-
-        if (cursor.moveToFirst()) {
-            // COL_NO 값 가져오기
-//            LocalDateTime RegistrationTime = cursor.get(1);
-            Double angerDegree = cursor.getDouble(2);
-            Double contemptDegree = cursor.getDouble(3);
-            Double disgustDegree = cursor.getDouble(4);
-            Double fearDegree = cursor.getDouble(5);
-            Double happinessDegree = cursor.getDouble(6);
-            Double neutralDegree = cursor.getDouble(7);
-            Double sadnessDegree = cursor.getDouble(8);
-            Double surpriseDegree = cursor.getDouble(9);
-        }
     }
     private TensorImage loadImage(final Bitmap imgBitmap) {
         // Loads bitmap into a TensorImage.
