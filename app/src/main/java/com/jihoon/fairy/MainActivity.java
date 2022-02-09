@@ -1,5 +1,6 @@
 package com.jihoon.fairy;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentResolver;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,11 +18,16 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
-    TextView textView;
+    TextView textView_result;
+    TextView textView_date;
+    TextView textView_time;
+
     String imgName = "jihoon.png";
 
     @Override
@@ -29,7 +36,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         imageView = findViewById(R.id.imageView);
-        textView = findViewById(R.id.textView_result);
+        textView_result = findViewById(R.id.textView_result);
+        textView_date = findViewById(R.id.textView_date);
+        textView_time = findViewById(R.id.textView_time);
 
 //        try {
 //            String imgpath = getCacheDir() + "/" + imgName;   // 내부 저장소에 저장되어 있는 이미지 경로
@@ -48,8 +57,17 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, 101);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void Click_button_result(View view) {
-        textView.setText("기쁨: 99%");
+        LocalDate localDate = LocalDate.now();
+        LocalTime localTime = LocalTime.now();
+
+        String LocalDate_String = localDate.toString();
+        String LocalTime_String = localTime.toString();
+
+        textView_result.setText("기쁨: 99%");
+        textView_date.setText(LocalDate_String);
+        textView_time.setText(LocalTime_String);
     }
 
     @Override
@@ -66,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                     instream.close();   // 스트림 닫아주기
                     saveBitmapToJpeg(imgBitmap);    // 내부 저장소에 저장
                     Toast.makeText(getApplicationContext(), "파일 불러오기 성공", Toast.LENGTH_SHORT).show();
-                    textView.setText("사진이 업로드되었습니다. 결과 확인을 눌러주세요.");
+                    textView_result.setText("사진이 업로드되었습니다. 결과 확인을 눌러주세요.");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "파일 불러오기 실패", Toast.LENGTH_SHORT).show();
                 }

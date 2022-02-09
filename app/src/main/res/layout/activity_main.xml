@@ -40,4 +40,16 @@
         android:layout_gravity="center"
         android:text="앨범에서 사진을 선택해주세요" />
 
+    <TextView
+        android:id="@+id/textView_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="기록 날짜" />
+
+    <TextView
+        android:id="@+id/textView_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="기록 시간" />
+
 </LinearLayout>
