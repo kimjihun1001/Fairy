@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -14,6 +17,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.jihoon.fairy.Const.Const;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
 
     String imgName = "jihoon.png";
 
+    SQLiteDatabase sqliteDB;
+    FairyDBHelper fairyDBHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
         textView_date = findViewById(R.id.textView_date);
         textView_time = findViewById(R.id.textView_time);
 
+        sqliteDB = init_database();
+        init_tables(); // 테이블 생성
+
+        load_values() ; // 데이터 조회
 //        try {
 //            String imgpath = getCacheDir() + "/" + imgName;   // 내부 저장소에 저장되어 있는 이미지 경로
 //            Bitmap bm = BitmapFactory.decodeFile(imgpath);
@@ -117,6 +129,48 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "파일 삭제 실패", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private SQLiteDatabase init_database() {
+        SQLiteDatabase db = null;
+
+        File file = new File (getFilesDir(), "contact.db");
+
+        System.out.println("PATH : " + file.toString());
+
+        try {
+            db = SQLiteDatabase.openOrCreateDatabase(file, null) ;
+        } catch (SQLiteException e) {
+            e.printStackTrace() ;
+        }
+
+        if (db == null) {
+            System.out.println("DB creation failed." + file.getAbsolutePath());
+        }
+
+        return db;
+    }
+
+    private void init_tables() {
+        fairyDBHelper = new FairyDBHelper(this);
+    }
+
+    private void load_values() {
+        SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery(Const.SQL_SELECT_TBL_EMOTIONS, null);
+
+        if (cursor.moveToFirst()) {
+            // COL_NO 값 가져오기
+//            LocalDateTime RegistrationTime = cursor.get(1);
+            Double angerDegree = cursor.getDouble(2);
+            Double contemptDegree = cursor.getDouble(3);
+            Double disgustDegree = cursor.getDouble(4);
+            Double fearDegree = cursor.getDouble(5);
+            Double happinessDegree = cursor.getDouble(6);
+            Double neutralDegree = cursor.getDouble(7);
+            Double sadnessDegree = cursor.getDouble(8);
+            Double surpriseDegree = cursor.getDouble(9);
         }
     }
 }
