@@ -13,43 +13,7 @@ public class Model_Emotions {
         this.RegistrationTime = RegistrationTime;
     }
 
-    // angerDegree
-    private double angerDegree;
-    public Double getAngerDegree() {
-        return this.angerDegree;
-    }
-    public void setAngerDegree(Double angerDegree) {
-        this.angerDegree = angerDegree;
-    }
-
-    //contemptDegree
-    private double contemptDegree;
-    public Double getContemptDegree() {
-        return this.contemptDegree;
-    }
-    public void setContemptDegree(Double contemptDegree) {
-        this.contemptDegree = contemptDegree;
-    }
-
-    //disgustDegree
-    private double disgustDegree;
-    public Double getDisgustDegree() {
-        return this.disgustDegree;
-    }
-    public void setDisgustDegree(Double disgustDegree) {
-        this.disgustDegree = disgustDegree;
-    }
-
-    //fearDegree
-    private double fearDegree;
-    public Double getFearDegree() {
-        return this.fearDegree;
-    }
-    public void setFearDegree(Double fearDegree) {
-        this.fearDegree = fearDegree;
-    }
-
-    //happinessDegree
+    //happinessDegree (기쁨)
     private double happinessDegree;
     public Double getHappinessDegree() {
         return this.happinessDegree;
@@ -58,7 +22,7 @@ public class Model_Emotions {
         this.happinessDegree = happinessDegree;
     }
 
-    //neutralDegree
+    //neutralDegree (무표정)
     private double neutralDegree;
     public Double getNeutralDegree() {
         return this.neutralDegree;
@@ -67,21 +31,12 @@ public class Model_Emotions {
         this.neutralDegree = neutralDegree;
     }
 
-    //sadnessDegree
+    //sadnessDegree (슬픔)
     private double sadnessDegree;
     public Double getSadnessDegree() {
         return this.sadnessDegree;
     }
     public void setSadnessDegree(Double sadnessDegree) {
         this.sadnessDegree = sadnessDegree;
-    }
-
-    //surpriseDegree
-    private double surpriseDegree;
-    public Double getSurpriseDegree() {
-        return this.surpriseDegree;
-    }
-    public void setSurpriseDegree(Double surpriseDegree) {
-        this.surpriseDegree = surpriseDegree;
     }
 }
