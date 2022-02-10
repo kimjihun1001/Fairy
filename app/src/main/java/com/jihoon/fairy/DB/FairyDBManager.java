@@ -15,19 +15,21 @@ public class FairyDBManager {
     public void save_values(FairyDBHelper fairyDBHelper, ModelEmotions modelEmotions) {
         SQLiteDatabase db = fairyDBHelper.getWritableDatabase() ;
 
-        String RegistrationDate = modelEmotions.getRegistrationDate().toString();
-        String RegistrationTime = modelEmotions.getRegistrationTime().toString();
+        String RegistrationDateTime = modelEmotions.getRegistrationDateTime().toString();
         Double happinessDegree = modelEmotions.getHappinessDegree();
         Double sadnessDegree = modelEmotions.getSadnessDegree();
         Double neutralDegree = modelEmotions.getNeutralDegree();
+        String imagePath = modelEmotions.getImagePath();
+        String imageName = modelEmotions.getImageName();
 
         String sqlInsert = Const.SQL_INSERT_TBL_EMOTIONS +
                 " (" +
-                "'" + RegistrationDate + "', " +
-                "'" + RegistrationTime + "', " +
+                "'" + RegistrationDateTime + "', " +
                 "" + happinessDegree + ", " +
                 "" + sadnessDegree + ", " +
                 "" + neutralDegree + ", " +
+                "'" + imagePath + "', " +
+                "'" + imageName + "', " +
                 ")" ;
 
         db.execSQL(sqlInsert) ;
@@ -39,12 +41,24 @@ public class FairyDBManager {
         SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery(Const.SQL_SELECT_TBL_EMOTIONS, null);
 
+        String registrationDateTime;
+        Double happinessDegree =;
+        Double sadnessDegree;
+        Double neutralDegree;
+        String imagePath;
+        String imageName;
+
         if (cursor.moveToFirst()) {
-            String RegistrationDate = cursor.getString(1);
-            String RegistrationTime = cursor.getString(2);
-            Double happinessDegree = cursor.getDouble(3);
-            Double sadnessDegree = cursor.getDouble(4);
-            Double neutralDegree = cursor.getDouble(5);
+            registrationDateTime = cursor.getString(1);
+            happinessDegree = cursor.getDouble(2);
+            sadnessDegree = cursor.getDouble(3);
+            neutralDegree = cursor.getDouble(4);
+            imagePath = cursor.getString(5);
+            imageName = cursor.getString(6);
         }
+
+        modelEmotions.setRegistrationDateTime(registrationDateTime);
+        modelEmotions.setHappinessDegree(happinessDegree);
+
     }
 }

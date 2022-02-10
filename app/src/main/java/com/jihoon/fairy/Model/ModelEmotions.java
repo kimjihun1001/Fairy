@@ -1,26 +1,21 @@
 package com.jihoon.fairy.Model;
 
+import android.media.MediaCodecInfo;
+
+import java.io.File;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class ModelEmotions {
 
-    // RegistrationDate (측정날짜)
-    private LocalDate RegistrationDate;
-    public LocalDate getRegistrationDate() {
-        return this.RegistrationDate;
+    // RegistrationDate (측정날짜 및 시간)
+    private LocalDateTime RegistrationDateTime;
+    public LocalDateTime getRegistrationDateTime() {
+        return this.RegistrationDateTime;
     }
-    public void setRegistrationDate(LocalDate RegistrationDate) {
-        this.RegistrationDate = RegistrationDate;
-    }
-
-    // RegistrationTime (측정시간)
-    private LocalTime RegistrationTime;
-    public LocalTime getRegistrationTime() {
-        return this.RegistrationTime;
-    }
-    public void setRegistrationTime(LocalTime RegistrationTime) {
-        this.RegistrationTime = RegistrationTime;
+    public void setRegistrationDateTime(LocalDateTime RegistrationDateTime) {
+        this.RegistrationDateTime = RegistrationDateTime;
     }
 
     //happinessDegree (기쁨)
@@ -49,4 +44,14 @@ public class ModelEmotions {
     public void setNeutralDegree(Double neutralDegree) {
         this.neutralDegree = neutralDegree;
     }
+
+    //imagePath (이미지 경로)
+    private String imagePath;
+    public String getImagePath() { return this.imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+
+    //imageName (이미지 이름)
+    private String imageName;
+    public String getImageName() { return this.imageName; }
+    public void setImageName(String imageName) { this.imageName = imageName; }
 }
