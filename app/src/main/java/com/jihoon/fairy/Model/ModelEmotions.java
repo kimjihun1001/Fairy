@@ -32,15 +32,6 @@ public class ModelEmotions {
         this.happinessDegree = happinessDegree;
     }
 
-    //neutralDegree (무표정)
-    private double neutralDegree;
-    public Double getNeutralDegree() {
-        return this.neutralDegree;
-    }
-    public void setNeutralDegree(Double neutralDegree) {
-        this.neutralDegree = neutralDegree;
-    }
-
     //sadnessDegree (슬픔)
     private double sadnessDegree;
     public Double getSadnessDegree() {
@@ -48,5 +39,14 @@ public class ModelEmotions {
     }
     public void setSadnessDegree(Double sadnessDegree) {
         this.sadnessDegree = sadnessDegree;
+    }
+
+    //neutralDegree (무표정)
+    private double neutralDegree;
+    public Double getNeutralDegree() {
+        return this.neutralDegree;
+    }
+    public void setNeutralDegree(Double neutralDegree) {
+        this.neutralDegree = neutralDegree;
     }
 }

@@ -93,12 +93,15 @@ public class MainActivity extends AppCompatActivity {
         textView_date = findViewById(R.id.textView_date);
         textView_time = findViewById(R.id.textView_time);
 
+        // DB 받아줄 변수 설정
+
         sqliteDB = init_database();
         init_tables(); // 테이블 생성
 
-        // 싱글톤 변경 필요함(잘 모르겠네;)
+        // DB 불러오기 싱글톤 변경 필요함
+        ModelEmotions modelEmotions;
         FairyDBManager fairyDBManager = new FairyDBManager();
-        fairyDBManager.load_values(fairyDBHelper);// 데이터 조회
+//        fairyDBManager.load_values(fairyDBHelper,);// 데이터 조회
 
         try{
             tflite=new Interpreter(loadmodelfile(MainActivity.this));

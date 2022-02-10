@@ -34,7 +34,7 @@ public class FairyDBManager {
     }
 
     // 데이터 조회(SELECT)
-    public void load_values(FairyDBHelper fairyDBHelper) {
+    public void load_values(FairyDBHelper fairyDBHelper, ModelEmotions modelEmotions) {
 
         SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery(Const.SQL_SELECT_TBL_EMOTIONS, null);
