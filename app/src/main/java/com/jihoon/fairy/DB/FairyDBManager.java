@@ -6,28 +6,28 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.jihoon.fairy.Const.Const;
+import com.jihoon.fairy.Model.ModelEmotions;
 import com.jihoon.fairy.R;
 
 public class FairyDBManager {
 
     // 데이터 저장(INSERT INTO)
-    public void save_values(FairyDBHelper fairyDBHelper, String Date, String Time,
-                            Double happiness, Double neutral, Double sadness) {
+    public void save_values(FairyDBHelper fairyDBHelper, ModelEmotions modelEmotions) {
         SQLiteDatabase db = fairyDBHelper.getWritableDatabase() ;
 
-        String RegistrationDate = Date;
-        String RegistrationTime = Time;
-        Double happinessDegree = happiness;
-        Double neutralDegree = neutral;
-        Double sadnessDegree = sadness;
+        String RegistrationDate = modelEmotions.getRegistrationDate().toString();
+        String RegistrationTime = modelEmotions.getRegistrationTime().toString();
+        Double happinessDegree = modelEmotions.getHappinessDegree();
+        Double sadnessDegree = modelEmotions.getSadnessDegree();
+        Double neutralDegree = modelEmotions.getNeutralDegree();
 
         String sqlInsert = Const.SQL_INSERT_TBL_EMOTIONS +
                 " (" +
                 "'" + RegistrationDate + "', " +
                 "'" + RegistrationTime + "', " +
                 "" + happinessDegree + ", " +
-                "" + neutralDegree + ", " +
                 "" + sadnessDegree + ", " +
+                "" + neutralDegree + ", " +
                 ")" ;
 
         db.execSQL(sqlInsert) ;
@@ -43,8 +43,8 @@ public class FairyDBManager {
             String RegistrationDate = cursor.getString(1);
             String RegistrationTime = cursor.getString(2);
             Double happinessDegree = cursor.getDouble(3);
-            Double neutralDegree = cursor.getDouble(4);
-            Double sadnessDegree = cursor.getDouble(5);
+            Double sadnessDegree = cursor.getDouble(4);
+            Double neutralDegree = cursor.getDouble(5);
         }
     }
 }

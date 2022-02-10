@@ -3,7 +3,7 @@ package com.jihoon.fairy.Model;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class Model_Emotions {
+public class ModelEmotions {
 
     // RegistrationDate (측정날짜)
     private LocalDate RegistrationDate;

@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
@@ -26,9 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
+import com.jihoon.fairy.Model.ModelEmotions;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -50,8 +49,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import java.nio.MappedByteBuffer;
@@ -123,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
         String LocalDate_String = localDate.toString();
         String LocalTime_String = localTime.toString();
 
+        // 형변환 방식 알아봐야함
+//        LocalDate newone = (LocalDate)LocalDate_String;
+
         textView_date.setText(LocalDate_String);
         textView_time.setText(LocalTime_String);
 
@@ -144,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         inputImageBuffer = loadImage(imgBitmap);
 
         tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
-        showresult();
+        showResult(localDate, localTime);
     }
 
 
@@ -259,7 +261,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void showresult(){
+    // API 받아와서 표시 (DB 저장 기능 추가해야함 / 승민)
+    private void showResult(LocalDate localDate, LocalTime localTime){
 
         try{
             labels = FileUtil.loadLabels(MainActivity.this,"labels.txt");
@@ -277,8 +280,19 @@ public class MainActivity extends AppCompatActivity {
 //            String[] label = labeledProbability.keySet().toArray(new String[0]);
             Float[] label_probability = labeledProbability.values().toArray(new Float[0]);
 
+            textView_result.setText("기쁨 : " + label_probability[0] + " 슬픔 : " + label_probability[1] + " 무표정 : " + label_probability[2]);
 
-            textView_result.setText("기쁨 : " + label_probability[0] + " 슬픔 : " + label_probability[1] + " 무표정 : " + label_probability[2]    );
+            ModelEmotions currentModelEmotions = new ModelEmotions();
+
+            // 측정 수치 객체화 후 DB 저장
+            currentModelEmotions.setRegistrationDate(localDate);
+            currentModelEmotions.setRegistrationTime(localTime);
+            currentModelEmotions.setHappinessDegree(Double.valueOf(label_probability[0]));
+            currentModelEmotions.setSadnessDegree(Double.valueOf(label_probability[1]));
+            currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
+
+            FairyDBManager fairyDBManager = new FairyDBManager();
+            fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
         }
     }
 }
