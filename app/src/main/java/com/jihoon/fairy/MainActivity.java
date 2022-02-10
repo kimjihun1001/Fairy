@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textView_date;
     TextView textView_time;
 
-    String imgName = "jihoon.png";
+    String imgName;
 
     SQLiteDatabase sqliteDB;
     FairyDBHelper fairyDBHelper;
@@ -110,26 +110,49 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void Click_button_upload(View view) {    // 이미지 선택 누르면 실행됨 이미지 고를 갤러리 오픈
+    // 이미지 선택 누르면 실행됨 이미지 고를 갤러리 오픈
+    public void Click_button_upload(View view) {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent, 101);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    // 갤러리에서 이미지를 선택하면 요청이 전송됨
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) { // 갤러리
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 101) {
+            if (resultCode == RESULT_OK) {
+                Uri fileUri = data.getData();
+                ContentResolver resolver = getContentResolver();
+                try {
+                    imgBitmap = MediaStore.Images.Media.getBitmap(resolver, fileUri);
+                    imageView.setImageBitmap(imgBitmap);    // 선택한 이미지 이미지뷰에 표시
+                    // Toast.makeText(getApplicationContext(), "사진 불러오기 성공", Toast.LENGTH_SHORT).show();
+                    textView_result.setText("사진이 업로드되었습니다. 결과 확인을 눌러주세요.");
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "사진 불러오기 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    public void SaveImage(Bitmap imgBitmap) {   // 선택한 이미지 내부 저장소에 저장
+        File tempFile = new File(getCacheDir(), imgName);    // 파일 경로와 이름 넣기
+        try {
+            tempFile.createNewFile();   // 자동으로 빈 파일을 생성하기
+            FileOutputStream out = new FileOutputStream(tempFile);  // 파일을 쓸 수 있는 스트림을 준비하기
+            imgBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);   // compress 함수를 사용해 스트림에 비트맵을 저장하기
+            out.close();    // 스트림 닫아주기
+            Toast.makeText(getApplicationContext(), "파일 저장 성공", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "파일 저장 실패", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void Click_button_result(View view) {
-        LocalDate localDate = LocalDate.now();
-        LocalTime localTime = LocalTime.now();
 
-        String LocalDate_String = localDate.toString();
-        String LocalTime_String = localTime.toString();
-
-        // 형변환 방식 알아봐야함
-//        LocalDate newone = (LocalDate)LocalDate_String;
-
-        textView_date.setText(LocalDate_String);
-        textView_time.setText(LocalTime_String);
 
         int imageTensorIndex = 0;
         int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
@@ -150,47 +173,30 @@ public class MainActivity extends AppCompatActivity {
 
         tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
         showResult(localDate, localTime);
+
+        SaveImage(imgBitmap);    // 내부 저장소에 저장
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void MakeModelEmotions() {
+        ModelEmotions currentModelEmotions = new ModelEmotions();
+
+        LocalDate localDate = LocalDate.now();
+        LocalTime localTime = LocalTime.now();
+
+        String LocalDate_String = localDate.toString();
+        String LocalTime_String = localTime.toString();
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) { // 갤러리
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 101) {
-            if (resultCode == RESULT_OK) {
-                Uri fileUri = data.getData();
-                ContentResolver resolver = getContentResolver();
-                try {
-                    InputStream instream = resolver.openInputStream(fileUri);
+        // 측정 수치 객체화 후 DB 저장
+        currentModelEmotions.setRegistrationDate(localDate);
+        currentModelEmotions.setRegistrationTime(localTime);
+        currentModelEmotions.setHappinessDegree(Double.valueOf(label_probability[0]));
+        currentModelEmotions.setSadnessDegree(Double.valueOf(label_probability[1]));
+        currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
 
-                    imgBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
-
-//                  지훈님꺼
-                    Bitmap imgBitmap1 = BitmapFactory.decodeStream(instream);
-                    imageView.setImageBitmap(imgBitmap);    // 선택한 이미지 이미지뷰에 셋
-                    instream.close();   // 스트림 닫아주기
-                    saveBitmapToJpeg(imgBitmap1);    // 내부 저장소에 저장
-                    Toast.makeText(getApplicationContext(), "파일 불러오기 성공", Toast.LENGTH_SHORT).show();
-                    textView_result.setText("사진이 업로드되었습니다. 결과 확인을 눌러주세요.");
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "파일 불러오기 실패", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
-    public void saveBitmapToJpeg(Bitmap imgBitmap) {   // 선택한 이미지 내부 저장소에 저장
-        File tempFile = new File(getCacheDir(), imgName);    // 파일 경로와 이름 넣기
-        try {
-            tempFile.createNewFile();   // 자동으로 빈 파일을 생성하기
-            FileOutputStream out = new FileOutputStream(tempFile);  // 파일을 쓸 수 있는 스트림을 준비하기
-            imgBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);   // compress 함수를 사용해 스트림에 비트맵을 저장하기
-            out.close();    // 스트림 닫아주기
-            Toast.makeText(getApplicationContext(), "파일 저장 성공", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "파일 저장 실패", Toast.LENGTH_SHORT).show();
-        }
+        FairyDBManager fairyDBManager = new FairyDBManager();
+        fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
     }
 
     public void bt2(View view) {    // 이미지 삭제
@@ -285,17 +291,10 @@ public class MainActivity extends AppCompatActivity {
 
             textView_result.setText("기쁨 : " + label_probability[0] + " 슬픔 : " + label_probability[1] + " 무표정 : " + label_probability[2]);
 
-            ModelEmotions currentModelEmotions = new ModelEmotions();
 
-            // 측정 수치 객체화 후 DB 저장
-            currentModelEmotions.setRegistrationDate(localDate);
-            currentModelEmotions.setRegistrationTime(localTime);
-            currentModelEmotions.setHappinessDegree(Double.valueOf(label_probability[0]));
-            currentModelEmotions.setSadnessDegree(Double.valueOf(label_probability[1]));
-            currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
 
-            FairyDBManager fairyDBManager = new FairyDBManager();
-            fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
+            textView_date.setText(LocalDate_String);
+            textView_time.setText(LocalTime_String);
         }
     }
 }
