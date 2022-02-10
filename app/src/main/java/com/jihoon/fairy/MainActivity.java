@@ -51,6 +51,7 @@ import java.io.InputStream;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import java.nio.MappedByteBuffer;
@@ -153,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void Click_button_result(View view) {
 
-
         int imageTensorIndex = 0;
         int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
         imageSizeY = imageShape[1];
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         inputImageBuffer = loadImage(imgBitmap);
 
         tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
-        showResult(localDate, localTime);
+        showResult();
 
         SaveImage(imgBitmap);    // 내부 저장소에 저장
     }
@@ -181,16 +181,12 @@ public class MainActivity extends AppCompatActivity {
     public void MakeModelEmotions() {
         ModelEmotions currentModelEmotions = new ModelEmotions();
 
-        LocalDate localDate = LocalDate.now();
-        LocalTime localTime = LocalTime.now();
-
-        String LocalDate_String = localDate.toString();
-        String LocalTime_String = localTime.toString();
-
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String localDateTime_String = localDateTime.toString();
 
         // 측정 수치 객체화 후 DB 저장
-        currentModelEmotions.setRegistrationDate(localDate);
-        currentModelEmotions.setRegistrationTime(localTime);
+        // currentModelEmotions.setRegistrationDate(localDate);
+        // currentModelEmotions.setRegistrationTime(localTime);
         currentModelEmotions.setHappinessDegree(Double.valueOf(label_probability[0]));
         currentModelEmotions.setSadnessDegree(Double.valueOf(label_probability[1]));
         currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
@@ -199,20 +195,20 @@ public class MainActivity extends AppCompatActivity {
         fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
     }
 
-    public void bt2(View view) {    // 이미지 삭제
-        try {
-            File file = getCacheDir();  // 내부저장소 캐시 경로를 받아오기
-            File[] flist = file.listFiles();
-            for (int i = 0; i < flist.length; i++) {    // 배열의 크기만큼 반복
-                if (flist[i].getName().equals(imgName)) {   // 삭제하고자 하는 이름과 같은 파일명이 있으면 실행
-                    flist[i].delete();  // 파일 삭제
-                    Toast.makeText(getApplicationContext(), "파일 삭제 성공", Toast.LENGTH_SHORT).show();
-                }
-            }
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "파일 삭제 실패", Toast.LENGTH_SHORT).show();
-        }
-    }
+//    public void bt2(View view) {    // 이미지 삭제
+//        try {
+//            File file = getCacheDir();  // 내부저장소 캐시 경로를 받아오기
+//            File[] flist = file.listFiles();
+//            for (int i = 0; i < flist.length; i++) {    // 배열의 크기만큼 반복
+//                if (flist[i].getName().equals(imgName)) {   // 삭제하고자 하는 이름과 같은 파일명이 있으면 실행
+//                    flist[i].delete();  // 파일 삭제
+//                    Toast.makeText(getApplicationContext(), "파일 삭제 성공", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        } catch (Exception e) {
+//            Toast.makeText(getApplicationContext(), "파일 삭제 실패", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private SQLiteDatabase init_database() {
         SQLiteDatabase db = null;
@@ -237,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
     private void init_tables() {
         fairyDBHelper = new FairyDBHelper(this);
     }
+
     private TensorImage loadImage(final Bitmap imgBitmap) {
         // Loads bitmap into a TensorImage.
         inputImageBuffer.load(imgBitmap);
@@ -269,9 +266,8 @@ public class MainActivity extends AppCompatActivity {
         return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
     }
 
-
     // API 받아와서 표시 (DB 저장 기능 추가해야함 / 승민)
-    private void showResult(LocalDate localDate, LocalTime localTime){
+    private void showResult(){
 
         try{
             labels = FileUtil.loadLabels(MainActivity.this,"labels.txt");
