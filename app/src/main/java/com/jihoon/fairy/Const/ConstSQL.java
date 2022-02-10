@@ -1,7 +1,7 @@
 package com.jihoon.fairy.Const;
 
-public class Const {
-    private Const() {};
+public class ConstSQL {
+    private ConstSQL() {};
 
     public static final String TBL_EMOTIONS = "EMOTIONS_T";
     public static final String COL_NO = "NO";

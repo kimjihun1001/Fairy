@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.jihoon.fairy.Const.ConstModelList;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
 import com.jihoon.fairy.Model.ModelEmotions;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap imgBitmap;
     private List<String> labels;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         // DB 불러오기 싱글톤 변경 필요함
         ModelEmotions modelEmotions;
         FairyDBManager fairyDBManager = new FairyDBManager();
-//        fairyDBManager.load_values(fairyDBHelper,);// 데이터 조회
+        fairyDBManager.load_values(fairyDBHelper);// 데이터 조회
 
         try{
             tflite=new Interpreter(loadmodelfile(MainActivity.this));
@@ -214,9 +216,9 @@ public class MainActivity extends AppCompatActivity {
             currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
         }
 
-        // DB 저장
-        // FairyDBManager fairyDBManager = new FairyDBManager();
-        // fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
+        // DB 저장 (승민 확인)
+        FairyDBManager fairyDBManager = new FairyDBManager();
+        fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
 
         // 화면에 표시하기
         ShowResult(currentModelEmotions);

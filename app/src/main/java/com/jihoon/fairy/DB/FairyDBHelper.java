@@ -1,13 +1,10 @@
 package com.jihoon.fairy.DB;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.jihoon.fairy.Const.Const;
-
-import java.time.LocalDateTime;
+import com.jihoon.fairy.Const.ConstSQL;
 
 public class FairyDBHelper extends SQLiteOpenHelper {
 
@@ -20,7 +17,7 @@ public class FairyDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(Const.SQL_CREATE_TBL);
+        db.execSQL(ConstSQL.SQL_CREATE_TBL);
     }
 
     @Override
