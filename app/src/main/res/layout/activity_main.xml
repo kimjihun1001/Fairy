@@ -41,15 +41,22 @@
         android:text="앨범에서 사진을 선택해주세요" />
 
     <TextView
-        android:id="@+id/textView_date"
+        android:id="@+id/textView_dateTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="기록 날짜" />
+        android:text="기록 날짜, 시간" />
 
     <TextView
-        android:id="@+id/textView_time"
+        android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="기록 시간" />
+        android:text="저장된 이미지"
+        android:textAlignment="center" />
+
+    <ImageView
+        android:id="@+id/imageView_savedImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_launcher_background" />
 
 </LinearLayout>

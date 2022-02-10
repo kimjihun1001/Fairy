@@ -63,10 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     TextView textView_result;
-    TextView textView_date;
-    TextView textView_time;
-
-    String imgName;
+    TextView textView_dateTime;
+    ImageView imageView_savedImage;
 
     SQLiteDatabase sqliteDB;
     FairyDBHelper fairyDBHelper;
@@ -91,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
-        textView_date = findViewById(R.id.textView_date);
-        textView_time = findViewById(R.id.textView_time);
+        textView_dateTime = findViewById(R.id.textView_dateTime);
+        imageView_savedImage = findViewById(R.id.imageView_savedImage);
 
         // DB 받아줄 변수 설정
 
@@ -139,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void SaveImage(Bitmap imgBitmap) {   // 선택한 이미지 내부 저장소에 저장
+    public String SaveImage(Bitmap imgBitmap, String imgName) {   // 선택한 이미지 내부 저장소에 저장
         File tempFile = new File(getCacheDir(), imgName);    // 파일 경로와 이름 넣기
         try {
             tempFile.createNewFile();   // 자동으로 빈 파일을 생성하기
@@ -147,13 +145,33 @@ public class MainActivity extends AppCompatActivity {
             imgBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);   // compress 함수를 사용해 스트림에 비트맵을 저장하기
             out.close();    // 스트림 닫아주기
             Toast.makeText(getApplicationContext(), "파일 저장 성공", Toast.LENGTH_SHORT).show();
+            // 파일 경로 반환
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "파일 저장 실패", Toast.LENGTH_SHORT).show();
         }
+        return getCacheDir() + "/" + imgName;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void Click_button_result(View view) {
+        // 객체 생성
+        ModelEmotions currentModelEmotions = new ModelEmotions();
 
+        // 현재 날짜, 시간 측정
+        LocalDateTime localDateTime = LocalDateTime.now();
+
+        // 객체에 생성 날짜, 시간 부여
+        currentModelEmotions.setRegistrationDateTime(localDateTime);
+
+        // 객체에 이름 부여
+        currentModelEmotions.setImageName(localDateTime.toString());
+
+        // 사진 로컬(내부 저장소)에 저장
+        // 이미지 경로 반환받아서 객체에 이미지 경로 저장
+        String imgPath = SaveImage(imgBitmap, currentModelEmotions.getImageName());
+        currentModelEmotions.setImagePath(imgPath);
+
+        // API 호출
         int imageTensorIndex = 0;
         int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
         imageSizeY = imageShape[1];
@@ -172,27 +190,46 @@ public class MainActivity extends AppCompatActivity {
         inputImageBuffer = loadImage(imgBitmap);
 
         tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
-        showResult();
 
-        SaveImage(imgBitmap);    // 내부 저장소에 저장
+        try{
+            labels = FileUtil.loadLabels(MainActivity.this,"labels.txt");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        Map<String, Float> labeledProbability =
+                new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
+                        .getMapWithFloatValue();
+
+        for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
+//            if (entry.getValue()==maxValueInMap) {
+//                String[] label = labeledProbability.keySet().toArray(new String[0]);
+//            }
+            Float[] label_probability = labeledProbability.values().toArray(new Float[0]);
+
+            // 객체에 감정 분석 결과 값 부여
+            currentModelEmotions.setHappinessDegree(Double.valueOf(label_probability[0]));
+            currentModelEmotions.setSadnessDegree(Double.valueOf(label_probability[1]));
+            currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
+        }
+
+        // DB 저장
+        // FairyDBManager fairyDBManager = new FairyDBManager();
+        // fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
+
+        // 화면에 표시하기
+        ShowResult(currentModelEmotions);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void MakeModelEmotions() {
-        ModelEmotions currentModelEmotions = new ModelEmotions();
+    private void ShowResult(ModelEmotions modelEmotions) {
 
-        LocalDateTime localDateTime = LocalDateTime.now();
-        String localDateTime_String = localDateTime.toString();
+        textView_result.setText("기쁨: " + modelEmotions.getHappinessDegree()+ "슬픔: " + modelEmotions.getSadnessDegree() + "무표정: " + modelEmotions.getNeutralDegree());
+        textView_dateTime.setText(modelEmotions.getRegistrationDateTime().toString());
 
-        // 측정 수치 객체화 후 DB 저장
-        // currentModelEmotions.setRegistrationDate(localDate);
-        // currentModelEmotions.setRegistrationTime(localTime);
-        currentModelEmotions.setHappinessDegree(Double.valueOf(label_probability[0]));
-        currentModelEmotions.setSadnessDegree(Double.valueOf(label_probability[1]));
-        currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
-
-        FairyDBManager fairyDBManager = new FairyDBManager();
-        fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
+        // 내부 저장소에 이미지가 저장되었는지 확인하기 위함
+        Bitmap savedImageBitmap =BitmapFactory.decodeFile(modelEmotions.getImagePath());
+        imageView_savedImage.setImageBitmap(savedImageBitmap);
     }
 
 //    public void bt2(View view) {    // 이미지 삭제
@@ -262,35 +299,10 @@ public class MainActivity extends AppCompatActivity {
     private TensorOperator getPreprocessNormalizeOp() {
         return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
     }
+
     private TensorOperator getPostprocessNormalizeOp(){
         return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
     }
 
-    // API 받아와서 표시 (DB 저장 기능 추가해야함 / 승민)
-    private void showResult(){
 
-        try{
-            labels = FileUtil.loadLabels(MainActivity.this,"labels.txt");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-
-        Map<String, Float> labeledProbability =
-                new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
-                        .getMapWithFloatValue();
-
-        for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
-            //if (entry.getValue()==maxValueInMap) {
-//            String[] label = labeledProbability.keySet().toArray(new String[0]);
-            Float[] label_probability = labeledProbability.values().toArray(new Float[0]);
-
-            textView_result.setText("기쁨 : " + label_probability[0] + " 슬픔 : " + label_probability[1] + " 무표정 : " + label_probability[2]);
-
-
-
-            textView_date.setText(LocalDate_String);
-            textView_time.setText(LocalTime_String);
-        }
-    }
 }

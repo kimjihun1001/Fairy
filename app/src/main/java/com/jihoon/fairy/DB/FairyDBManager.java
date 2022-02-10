@@ -42,7 +42,7 @@ public class FairyDBManager {
         Cursor cursor = db.rawQuery(Const.SQL_SELECT_TBL_EMOTIONS, null);
 
         String registrationDateTime;
-        Double happinessDegree =;
+        Double happinessDegree;
         Double sadnessDegree;
         Double neutralDegree;
         String imagePath;
@@ -57,8 +57,8 @@ public class FairyDBManager {
             imageName = cursor.getString(6);
         }
 
-        modelEmotions.setRegistrationDateTime(registrationDateTime);
-        modelEmotions.setHappinessDegree(happinessDegree);
+        // modelEmotions.setRegistrationDateTime(registrationDateTime);
+        // modelEmotions.setHappinessDegree(happinessDegree);
 
     }
 }
