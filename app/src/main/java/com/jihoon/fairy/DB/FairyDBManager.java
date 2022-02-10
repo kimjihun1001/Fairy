@@ -2,12 +2,19 @@ package com.jihoon.fairy.DB;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
+import androidx.annotation.RequiresApi;
 
 import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.Model.ModelEmotions;
 import com.jihoon.fairy.R;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class FairyDBManager {
 
@@ -36,29 +43,31 @@ public class FairyDBManager {
     }
 
     // 데이터 조회(SELECT)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void load_values(FairyDBHelper fairyDBHelper, ModelEmotions modelEmotions) {
 
         SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery(Const.SQL_SELECT_TBL_EMOTIONS, null);
 
-        String registrationDateTime;
-        Double happinessDegree;
-        Double sadnessDegree;
-        Double neutralDegree;
-        String imagePath;
-        String imageName;
+        while (cursor.moveToNext()) {
+            String registrationDateTime_String = cursor.getString(1);
+            Double happinessDegree = cursor.getDouble(2);
+            Double sadnessDegree = cursor.getDouble(3);
+            Double neutralDegree = cursor.getDouble(4);
+            String imagePath = cursor.getString(5);
+            String imageName = cursor.getString(6);
 
-        if (cursor.moveToFirst()) {
-            registrationDateTime = cursor.getString(1);
-            happinessDegree = cursor.getDouble(2);
-            sadnessDegree = cursor.getDouble(3);
-            neutralDegree = cursor.getDouble(4);
-            imagePath = cursor.getString(5);
-            imageName = cursor.getString(6);
+            // 형변환
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-mm-dd HH:mm:ss.SSS");
+            LocalDateTime registrationDateTime = LocalDateTime.parse(registrationDateTime_String, formatter);
+
+
+            modelEmotions.setRegistrationDateTime(registrationDateTime);
+            modelEmotions.setHappinessDegree(happinessDegree);
+            modelEmotions.setSadnessDegree(sadnessDegree);
+            modelEmotions.setNeutralDegree(neutralDegree);
+            modelEmotions.setImagePath(imagePath);
+            modelEmotions.setImageName(imageName);
         }
-
-        // modelEmotions.setRegistrationDateTime(registrationDateTime);
-        // modelEmotions.setHappinessDegree(happinessDegree);
-
     }
 }
