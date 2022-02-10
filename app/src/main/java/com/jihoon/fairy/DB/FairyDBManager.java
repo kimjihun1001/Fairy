@@ -6,7 +6,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.jihoon.fairy.Const.ConstModelList;
+import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.Const.ConstSQL;
 import com.jihoon.fairy.Model.ModelEmotions;
 
@@ -27,13 +27,13 @@ public class FairyDBManager {
         String imageName = modelEmotions.getImageName();
 
         String sqlInsert = ConstSQL.SQL_INSERT_TBL_EMOTIONS +
-                " (" +
+                "(" +
                 "'" + RegistrationDateTime + "', " +
                 "" + happinessDegree + ", " +
                 "" + sadnessDegree + ", " +
                 "" + neutralDegree + ", " +
                 "'" + imagePath + "', " +
-                "'" + imageName + "', " +
+                "'" + imageName + "'" +
                 ")" ;
 
         db.execSQL(sqlInsert) ;
@@ -55,8 +55,7 @@ public class FairyDBManager {
             String imageName = cursor.getString(6);
 
             // 형변환
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-mm-dd HH:mm:ss.SSS");
-            LocalDateTime registrationDateTime = LocalDateTime.parse(registrationDateTime_String, formatter);
+            LocalDateTime registrationDateTime = LocalDateTime.parse(registrationDateTime_String);
 
             ModelEmotions modelEmotions = new ModelEmotions();
 
@@ -67,7 +66,7 @@ public class FairyDBManager {
             modelEmotions.setImagePath(imagePath);
             modelEmotions.setImageName(imageName);
 
-            ConstModelList.List_ModelEmotions.add(modelEmotions);
+            Const.List_ModelEmotions.add(modelEmotions);
         }
     }
 }

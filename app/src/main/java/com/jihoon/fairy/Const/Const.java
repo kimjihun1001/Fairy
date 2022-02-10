@@ -4,11 +4,11 @@ import com.jihoon.fairy.Model.ModelEmotions;
 
 import java.util.ArrayList;
 
-public class ConstModelList {
+public class Const {
 
     public static ArrayList<ModelEmotions> List_ModelEmotions = new ArrayList<ModelEmotions>();
 
-    private ConstModelList() {
+    private Const() {
 
     }
 }

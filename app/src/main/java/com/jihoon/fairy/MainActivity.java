@@ -25,7 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.jihoon.fairy.Const.ConstModelList;
+import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
 import com.jihoon.fairy.Model.ModelEmotions;
@@ -48,12 +48,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -222,6 +218,9 @@ public class MainActivity extends AppCompatActivity {
 
         // 화면에 표시하기
         ShowResult(currentModelEmotions);
+
+        // DB 확인용
+        Toast.makeText(this, Const.List_ModelEmotions.get(0).getImageName(), Toast.LENGTH_SHORT).show();
     }
 
     private void ShowResult(ModelEmotions modelEmotions) {
