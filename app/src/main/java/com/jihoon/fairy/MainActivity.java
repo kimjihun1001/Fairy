@@ -282,12 +282,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void ShowResult(ModelEmotions modelEmotions) {
 
-        textView_result.setText("기쁨: " + modelEmotions.getHappinessDegree()+ "슬픔: " + modelEmotions.getSadnessDegree() + "무표정: " + modelEmotions.getNeutralDegree());
+        textView_result.setText("기쁨: " + ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()) + "슬픔: " + ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()) + "무표정: " + ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
         textView_dateTime.setText(modelEmotions.getRegistrationDateTime().toString());
 
         // 내부 저장소에 이미지가 저장되었는지 확인하기 위함
         Bitmap savedImageBitmap =BitmapFactory.decodeFile(modelEmotions.getImagePath());
         imageView_savedImage.setImageBitmap(savedImageBitmap);
+    }
+
+    // Double 형태의 수치를 "00.00%" 형태의 String으로 변환하기 위한 메쏘드
+    private String ConvertDoubleToPercentage(Double num) {
+        num = num * 100;
+        String result = String.format("%.2f", num);
+        result += "%";
+        return result;
     }
 
 //    public void bt2(View view) {    // 이미지 삭제
