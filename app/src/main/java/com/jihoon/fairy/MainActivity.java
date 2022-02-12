@@ -21,10 +21,13 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.google.android.material.tabs.TabItem;
+import com.google.android.material.tabs.TabLayout;
 import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
@@ -100,10 +103,64 @@ public class MainActivity extends AppCompatActivity {
         FairyDBManager fairyDBManager = new FairyDBManager();
         fairyDBManager.load_values(fairyDBHelper);// 데이터 조회
 
+        // TODO : API 호출 코드인가?
         try{
             tflite=new Interpreter(loadmodelfile(MainActivity.this));
         }catch (Exception e) {
             e.printStackTrace();
+        }
+
+        // 앱이 켜지면 홈 화면 탭이 선택된 상태로 만들기
+        // 홈 화면 탭에 대한 FrameLayout 내의 화면은 XML에서 visible로 설정되어있음.
+        // 왜인지 모르겠지만 이 코드로는 탭 선택이 안됨. 오류 발생
+        // 그래서 그냥 홈, 기록, 설정 순서로 탭 순서 변경.
+        // TabItem tabItem_home = (TabItem) findViewById(R.id.tabItem_home);
+        // tabItem_home.setSelected(true);
+
+        // 탭 선택 이벤트 핸들러 설정하기
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int pos = tab.getPosition();
+                // 선택한 탭에 대한 화면을 표시하는 메쏘드
+                ChangeView(pos);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+    }
+
+    // 탭 선택 시, 표시 화면 변경하기
+    public void ChangeView(int index) {
+        LinearLayout layout_home = findViewById(R.id.layout_home);
+        LinearLayout layout_history = findViewById(R.id.layout_history);
+        LinearLayout layout_setting = findViewById(R.id.layout_setting);
+
+        switch (index) {
+            case 0 :
+                layout_home.setVisibility(View.VISIBLE);
+                layout_history.setVisibility(View.INVISIBLE);
+                layout_setting.setVisibility(View.INVISIBLE);
+                break;
+            case 1 :
+                layout_home.setVisibility(View.INVISIBLE);
+                layout_history.setVisibility(View.VISIBLE);
+                layout_setting.setVisibility(View.INVISIBLE);
+                break;
+            case 2 :
+                layout_home.setVisibility(View.INVISIBLE);
+                layout_history.setVisibility(View.INVISIBLE);
+                layout_setting.setVisibility(View.VISIBLE);
+                break;
         }
     }
 
