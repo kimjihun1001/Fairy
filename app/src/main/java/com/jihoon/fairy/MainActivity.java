@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
         textView_dateTime = findViewById(R.id.textView_dateTime);
-        imageView_savedImage = findViewById(R.id.imageView_savedImage);
 
         // DB 받아줄 변수 설정
         sqliteDB = init_database();
@@ -299,9 +298,6 @@ public class MainActivity extends AppCompatActivity {
         textView_result.setText("기쁨: " + Const.ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()) + "슬픔: " + Const.ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()) + "무표정: " + Const.ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
         textView_dateTime.setText(modelEmotions.getRegistrationDateTime().toString());
 
-        // 내부 저장소에 이미지가 저장되었는지 확인하기 위함
-        Bitmap savedImageBitmap =BitmapFactory.decodeFile(modelEmotions.getImagePath());
-        imageView_savedImage.setImageBitmap(savedImageBitmap);
     }
 
 
