@@ -1,6 +1,8 @@
 package com.jihoon.fairy.Adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +47,9 @@ public class HistoryListViewAdapter extends BaseAdapter {
 
         ModelEmotions modelEmotions = listViewItemList.get(position);
 
-//        iconImageView.setImageBitmap(modelEmotions.getImagePath());
+        Bitmap savedImageBitmap = BitmapFactory.decodeFile(modelEmotions.getImagePath());
+
+        photoImageView.setImageBitmap(savedImageBitmap);
         registrationDateTime.setText(modelEmotions.getRegistrationDateTime().toString());
         happinessDegree.setText(modelEmotions.getHappinessDegree().toString());
         sadnessDegree.setText(modelEmotions.getSadnessDegree().toString());
