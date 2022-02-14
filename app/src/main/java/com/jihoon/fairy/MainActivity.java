@@ -93,9 +93,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//
-//        history_ListView = (ListView)findViewById(R.id.listview_history);
-//        history_ListView.setAdapter(history_Adapter);
 
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
@@ -153,14 +150,6 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout layout_home = findViewById(R.id.layout_home);
         LinearLayout layout_history = findViewById(R.id.layout_history);
         LinearLayout layout_setting = findViewById(R.id.layout_setting);
-        history_Adapter = new HistoryListViewAdapter();
-        history_Adapter.notifyDataSetChanged();
-        history_ListView = (ListView)findViewById(R.id.listview_history);
-        history_ListView.setAdapter(history_Adapter);
-
-        for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
-            history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
-        }
 
         switch (index) {
             case 0 :
@@ -169,6 +158,14 @@ public class MainActivity extends AppCompatActivity {
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 1 :
+                history_Adapter = new HistoryListViewAdapter();
+                history_Adapter.notifyDataSetChanged();
+                history_ListView = (ListView)findViewById(R.id.listview_history);
+                history_ListView.setAdapter(history_Adapter);
+
+                for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
+                    history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
+                }
 
                 layout_home.setVisibility(View.INVISIBLE);
                 layout_history.setVisibility(View.VISIBLE);
