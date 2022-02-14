@@ -1,5 +1,5 @@
 package com.jihoon.fairy;
- 
+// Ver 0.2
 import androidx.annotation.RequiresApi;
 
 import androidx.appcompat.app.AppCompatActivity;
