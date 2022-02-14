@@ -77,5 +77,6 @@ public class HistoryListViewAdapter extends BaseAdapter {
 //        item.setNeutralDegree(neutralDegree);
 
         listViewItemList.add(item);
+        this.notifyDataSetChanged();
     }
 }

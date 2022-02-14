@@ -85,17 +85,17 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap imgBitmap;
     private List<String> labels;
 
+    ListView history_ListView;
+    HistoryListViewAdapter history_Adapter;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        ListView history_ListView;
-        HistoryListViewAdapter history_Adapter = new HistoryListViewAdapter();
-        history_ListView = (ListView)findViewById(R.id.listview_history);
-        history_ListView.setAdapter(history_Adapter);
-
+//
+//        history_ListView = (ListView)findViewById(R.id.listview_history);
+//        history_ListView.setAdapter(history_Adapter);
 
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         imageView_savedImage = findViewById(R.id.imageView_savedImage);
 
         // DB 받아줄 변수 설정
-
         sqliteDB = init_database();
         init_tables(); // 테이블 생성
 
@@ -111,11 +110,6 @@ public class MainActivity extends AppCompatActivity {
         ModelEmotions modelEmotions;
         FairyDBManager fairyDBManager = new FairyDBManager();
         fairyDBManager.load_values(fairyDBHelper);// 데이터 조회
-
-        // history 기록 불러오기
-        for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
-            history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
-        }
 
         // TODO : API 호출 코드인가?
         try{
@@ -154,10 +148,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // 탭 선택 시, 표시 화면 변경하기
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void ChangeView(int index) {
         LinearLayout layout_home = findViewById(R.id.layout_home);
         LinearLayout layout_history = findViewById(R.id.layout_history);
         LinearLayout layout_setting = findViewById(R.id.layout_setting);
+        history_Adapter = new HistoryListViewAdapter();
+        history_Adapter.notifyDataSetChanged();
+        history_ListView = (ListView)findViewById(R.id.listview_history);
+        history_ListView.setAdapter(history_Adapter);
+
+        for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
+            history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
+        }
 
         switch (index) {
             case 0 :
@@ -166,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 1 :
+
                 layout_home.setVisibility(View.INVISIBLE);
                 layout_history.setVisibility(View.VISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
@@ -289,9 +293,6 @@ public class MainActivity extends AppCompatActivity {
 
         // 화면에 표시하기
         ShowResult(currentModelEmotions);
-
-        // DB 확인용
-        Toast.makeText(this, Const.List_ModelEmotions.get(0).getImageName(), Toast.LENGTH_SHORT).show();
     }
 
     private void ShowResult(ModelEmotions modelEmotions) {

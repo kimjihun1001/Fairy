@@ -26,6 +26,8 @@ public class FairyDBManager {
         String imagePath = modelEmotions.getImagePath();
         String imageName = modelEmotions.getImageName();
 
+        Const.List_ModelEmotions.add(modelEmotions);
+
         String sqlInsert = ConstSQL.SQL_INSERT_TBL_EMOTIONS +
                 "(" +
                 "'" + RegistrationDateTime + "', " +
