@@ -3,6 +3,7 @@ package com.jihoon.fairy;
 import androidx.annotation.RequiresApi;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -22,12 +23,14 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
+import com.jihoon.fairy.Adapter.HistoryListViewAdapter;
 import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
@@ -88,6 +91,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ListView history_ListView;
+        HistoryListViewAdapter history_Adapter = new HistoryListViewAdapter();
+        history_ListView = (ListView)findViewById(R.id.listview_history);
+        history_ListView.setAdapter(history_Adapter);
+
+
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
         textView_dateTime = findViewById(R.id.textView_dateTime);
@@ -102,6 +111,11 @@ public class MainActivity extends AppCompatActivity {
         ModelEmotions modelEmotions;
         FairyDBManager fairyDBManager = new FairyDBManager();
         fairyDBManager.load_values(fairyDBHelper);// 데이터 조회
+
+        // history 기록 불러오기
+        for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
+            history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
+        }
 
         // TODO : API 호출 코드인가?
         try{
@@ -269,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
             currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
         }
 
-        // DB 저장 (승민 확인)
+        // DB 저장
         FairyDBManager fairyDBManager = new FairyDBManager();
         fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
 
@@ -369,6 +383,4 @@ public class MainActivity extends AppCompatActivity {
     private TensorOperator getPostprocessNormalizeOp(){
         return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
     }
-
-
 }
