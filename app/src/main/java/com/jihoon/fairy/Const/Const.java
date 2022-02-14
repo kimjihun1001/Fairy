@@ -11,4 +11,12 @@ public class Const {
     private Const() {
 
     }
+
+    // Double 형태의 수치를 "00.00%" 형태의 String으로 변환하기 위한 메쏘드
+    public static String ConvertDoubleToPercentage(Double num) {
+        num = num * 100;
+        String result = String.format("%.2f", num);
+        result += "%";
+        return result;
+    }
 }

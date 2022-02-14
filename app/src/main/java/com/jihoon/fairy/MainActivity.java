@@ -142,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
     }
 
     // 탭 선택 시, 표시 화면 변경하기
@@ -158,11 +160,11 @@ public class MainActivity extends AppCompatActivity {
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 1 :
+                // 기록 탭 리스트뷰와 어뎁터 연결하기
                 history_Adapter = new HistoryListViewAdapter();
-                history_Adapter.notifyDataSetChanged();
+                history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
                 history_ListView = (ListView)findViewById(R.id.listview_history);
                 history_ListView.setAdapter(history_Adapter);
-
                 for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
                     history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
                 }
@@ -294,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void ShowResult(ModelEmotions modelEmotions) {
 
-        textView_result.setText("기쁨: " + ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()) + "슬픔: " + ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()) + "무표정: " + ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
+        textView_result.setText("기쁨: " + Const.ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()) + "슬픔: " + Const.ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()) + "무표정: " + Const.ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
         textView_dateTime.setText(modelEmotions.getRegistrationDateTime().toString());
 
         // 내부 저장소에 이미지가 저장되었는지 확인하기 위함
@@ -302,13 +304,7 @@ public class MainActivity extends AppCompatActivity {
         imageView_savedImage.setImageBitmap(savedImageBitmap);
     }
 
-    // Double 형태의 수치를 "00.00%" 형태의 String으로 변환하기 위한 메쏘드
-    private String ConvertDoubleToPercentage(Double num) {
-        num = num * 100;
-        String result = String.format("%.2f", num);
-        result += "%";
-        return result;
-    }
+
 
 //    public void bt2(View view) {    // 이미지 삭제
 //        try {

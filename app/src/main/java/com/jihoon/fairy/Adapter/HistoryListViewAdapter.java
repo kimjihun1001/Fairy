@@ -11,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.Model.ModelEmotions;
 import com.jihoon.fairy.R;
 
@@ -51,9 +52,9 @@ public class HistoryListViewAdapter extends BaseAdapter {
 
         photoImageView.setImageBitmap(savedImageBitmap);
         registrationDateTime.setText(modelEmotions.getRegistrationDateTime().toString());
-        happinessDegree.setText(modelEmotions.getHappinessDegree().toString());
-        sadnessDegree.setText(modelEmotions.getSadnessDegree().toString());
-        neutralDegree.setText(modelEmotions.getNeutralDegree().toString());
+        happinessDegree.setText("기쁨" + Const.ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()));
+        sadnessDegree.setText("슬픔" + Const.ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()));
+        neutralDegree.setText("무표정" + Const.ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
 
         return convertView;
     }
@@ -70,13 +71,7 @@ public class HistoryListViewAdapter extends BaseAdapter {
 
     public void addItem(ModelEmotions item) {
 
-//        item.setImagePath(item.getImagePath());
-//        item.setRegistrationDateTime(item.getRegistrationDateTime());
-//        item.setHappinessDegree(happinessDegree);
-//        item.setSadnessDegree(sadnessDegree);
-//        item.setNeutralDegree(neutralDegree);
-
         listViewItemList.add(item);
-        this.notifyDataSetChanged();
+        // this.notifyDataSetChanged();
     }
 }
