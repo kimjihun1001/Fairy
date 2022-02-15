@@ -22,10 +22,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.material.tabs.TabLayout;
 import com.jihoon.fairy.Adapter.HistoryListViewAdapter;
 import com.jihoon.fairy.Const.Const;
@@ -56,6 +61,7 @@ import java.time.LocalDateTime;
 
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -84,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
     ListView history_ListView;
     HistoryListViewAdapter history_Adapter;
+
+    // 그래프 그리기
+    LineChart chart;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -139,20 +148,37 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // 그래프 그리기
+        chart = (LineChart) findViewById(R.id.chart);
+        List<Entry> entries = new ArrayList<Entry>();
 
+        for (ModelEmotions modelEmotions1 : Const.List_ModelEmotions) {
+            String day_str = modelEmotions1.getRegistrationDateTime().toString().substring(6, 7);
+            float day = Integer.parseInt(day_str);
+            float happy = modelEmotions1.getHappinessDegree().floatValue();
+            entries.add(new Entry(day, happy));
+        }
+
+        LineDataSet dataSet = new LineDataSet(entries, "Label");
+//        dataSet.setColor();
+//        dataSet.setValueTextColor();
+
+        LineData lineData = new LineData(dataSet);
+        chart.setData(lineData);
+        chart.invalidate(); // refresh
     }
 
     // 탭 선택 시, 표시 화면 변경하기
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void ChangeView(int index) {
         LinearLayout layout_home = findViewById(R.id.layout_home);
-        LinearLayout layout_history = findViewById(R.id.layout_history);
+        ScrollView scrollView_history = findViewById(R.id.scrollView_history);
         LinearLayout layout_setting = findViewById(R.id.layout_setting);
 
         switch (index) {
             case 0 :
                 layout_home.setVisibility(View.VISIBLE);
-                layout_history.setVisibility(View.INVISIBLE);
+                scrollView_history.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 1 :
@@ -165,13 +191,16 @@ public class MainActivity extends AppCompatActivity {
                     history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
                 }
 
+                // 그래프 새로고침
+                chart.invalidate(); // refresh
+
                 layout_home.setVisibility(View.INVISIBLE);
-                layout_history.setVisibility(View.VISIBLE);
+                scrollView_history.setVisibility(View.VISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 2 :
                 layout_home.setVisibility(View.INVISIBLE);
-                layout_history.setVisibility(View.INVISIBLE);
+                scrollView_history.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.VISIBLE);
                 break;
         }
@@ -179,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 이미지 선택 누르면 실행됨 이미지 고를 갤러리 오픈
     public void Click_button_upload(View view) {
+        Toast.makeText(this, "업로드 버튼 클릭", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
