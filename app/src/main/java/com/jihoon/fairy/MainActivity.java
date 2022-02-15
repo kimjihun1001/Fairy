@@ -161,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         LineDataSet dataSet = new LineDataSet(entries, "Label");
-        dataSet.setColor(Color.WHITE);
-        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setColor(Color.BLUE);
+        dataSet.setValueTextColor(Color.BLUE);
 
         LineData lineData = new LineData(dataSet);
         chart.setData(lineData);
@@ -184,6 +184,15 @@ public class MainActivity extends AppCompatActivity {
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 1 :
+                
+                // TODO : 그래프 새로고침
+
+                layout_home.setVisibility(View.INVISIBLE);
+                scrollView_history.setVisibility(View.VISIBLE);
+                layout_photoHistory.setVisibility(View.INVISIBLE);
+                layout_setting.setVisibility(View.INVISIBLE);
+                break;
+            case 2 :
                 // 기록 탭 리스트뷰와 어뎁터 연결하기
                 history_Adapter = new HistoryListViewAdapter();
                 history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
@@ -193,14 +202,6 @@ public class MainActivity extends AppCompatActivity {
                     history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
                 }
 
-                // TODO : 그래프 새로고침
-
-                layout_home.setVisibility(View.INVISIBLE);
-                scrollView_history.setVisibility(View.VISIBLE);
-                layout_photoHistory.setVisibility(View.INVISIBLE);
-                layout_setting.setVisibility(View.INVISIBLE);
-                break;
-            case 2 :
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_photoHistory.setVisibility(View.VISIBLE);
