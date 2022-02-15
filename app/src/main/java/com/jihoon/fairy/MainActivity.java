@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
         LineData lineData = new LineData(dataSet);
         chart.setData(lineData);
-        chart.invalidate(); // refresh
+        chart.invalidate(); // refresh -> 안됨 ...
     }
 
     // 탭 선택 시, 표시 화면 변경하기
@@ -192,8 +192,7 @@ public class MainActivity extends AppCompatActivity {
                     history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
                 }
 
-                // 그래프 새로고침
-                chart.invalidate(); // refresh
+                // TODO : 그래프 새로고침
 
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.VISIBLE);
