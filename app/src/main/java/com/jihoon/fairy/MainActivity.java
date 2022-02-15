@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 // 기록 탭 리스트뷰와 어뎁터 연결하기
                 history_Adapter = new HistoryListViewAdapter();
                 history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
-                history_ListView = (ListView)findViewById(R.id.listView_photoHistory);
+                history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
                 history_ListView.setAdapter(history_Adapter);
                 for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
                     history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;

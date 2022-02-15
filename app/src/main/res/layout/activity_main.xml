@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <TextView
                 android:id="@+id/textView6"
@@ -111,13 +111,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="visible">
 
             <ListView
-                android:id="@+id/listView_photoHistory"
+                android:id="@+id/listView_historyDate"
                 android:layout_width="match_parent"
                 android:layout_height="300dp">
-
+            </ListView>
+            <ListView
+                android:id="@+id/listView_historyPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="300dp">
             </ListView>
         </LinearLayout>
 
