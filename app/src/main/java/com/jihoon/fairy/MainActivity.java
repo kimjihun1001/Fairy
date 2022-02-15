@@ -3,7 +3,6 @@ package com.jihoon.fairy;
 import androidx.annotation.RequiresApi;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -15,7 +14,6 @@ import android.database.sqlite.SQLiteException;
 import android.content.res.AssetFileDescriptor;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.jihoon.fairy.Adapter.HistoryListViewAdapter;
 import com.jihoon.fairy.Const.Const;
@@ -162,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 // 기록 탭 리스트뷰와 어뎁터 연결하기
                 history_Adapter = new HistoryListViewAdapter();
                 history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
-                history_ListView = (ListView)findViewById(R.id.listview_history);
+                history_ListView = (ListView)findViewById(R.id.listView_history);
                 history_ListView.setAdapter(history_Adapter);
                 for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
                     history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
