@@ -10,7 +10,8 @@
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
-        android:layout_height="600dp">
+        android:layout_height="0dp"
+        android:layout_weight="9">
 
         <LinearLayout
             android:id="@+id/layout_home"
@@ -117,7 +118,8 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem_home"
