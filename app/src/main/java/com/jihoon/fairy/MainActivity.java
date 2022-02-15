@@ -1,11 +1,13 @@
 package com.jihoon.fairy;
 // Ver 0.2
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -15,6 +17,8 @@ import android.content.res.AssetFileDescriptor;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,6 +62,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 
 import java.nio.MappedByteBuffer;
@@ -87,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private static final float PROBABILITY_MEAN = 0.0f;
     private static final float PROBABILITY_STD = 255.0f;
     private Bitmap imgBitmap;
+    private Bitmap bmRotated;
     private List<String> labels;
 
     ListView history_ListView;
@@ -233,9 +240,28 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri fileUri = data.getData();
                 ContentResolver resolver = getContentResolver();
+
+                // 사진파일 실제 주소 얻기.
+                String realPath = createCopyAndReturnRealPath(this,fileUri);
+
+                //회전 여부 알기
+                ExifInterface exif = null;
+                try {
+                    exif = new ExifInterface(realPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_UNDEFINED);
+
+
                 try {
                     imgBitmap = MediaStore.Images.Media.getBitmap(resolver, fileUri);
-                    imageView.setImageBitmap(imgBitmap);    // 선택한 이미지 이미지뷰에 표시
+
+                    //이미지 회전시키기
+                    bmRotated = rotateBitmap(imgBitmap, orientation);
+
+                    imageView.setImageBitmap(bmRotated);    // 선택한 이미지 이미지뷰에 표시
                     // Toast.makeText(getApplicationContext(), "사진 불러오기 성공", Toast.LENGTH_SHORT).show();
                     textView_result.setText("사진이 업로드되었습니다. 결과 확인을 눌러주세요.");
                 } catch (Exception e) {
@@ -276,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 사진 로컬(내부 저장소)에 저장
         // 이미지 경로 반환받아서 객체에 이미지 경로 저장
-        String imgPath = SaveImage(imgBitmap, currentModelEmotions.getImageName());
+        String imgPath = SaveImage(bmRotated, currentModelEmotions.getImageName());
         currentModelEmotions.setImagePath(imgPath);
 
         // API 호출
@@ -295,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
         outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
         probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
 
-        inputImageBuffer = loadImage(imgBitmap);
+        inputImageBuffer = loadImage(bmRotated);
 
         tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
 
@@ -410,5 +436,81 @@ public class MainActivity extends AppCompatActivity {
     private TensorOperator getPostprocessNormalizeOp(){
         return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
     }
-    
+
+    public static String createCopyAndReturnRealPath(@NonNull Context context, @NonNull Uri uri){
+        final ContentResolver contentResolver = context.getContentResolver();
+
+        if (contentResolver == null)
+            return null;
+
+        //파일 경로를 만듬
+
+        String filePath = context.getApplicationInfo().dataDir + File.separator
+                + System.currentTimeMillis();
+
+        File file = new File(filePath);
+        try{
+            //매개변수로 받은 uri 를 통해 이미지에 필요한 데이터를 불러옴
+            InputStream inputStream = contentResolver.openInputStream(uri);
+            if(inputStream == null)
+                return null;
+
+            //이미지 데이터를 다시 내보내면서 file객체에 만들었던 경로 이용
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buf)) > 0)
+                outputStream.write(buf, 0, len);
+            outputStream.close();
+            inputStream.close();
+        }catch (IOException ignore){
+            return null;
+        }
+        return  file.getAbsolutePath();
+    }
+
+    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        }
+        catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }
