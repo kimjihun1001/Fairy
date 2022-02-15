@@ -70,34 +70,46 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/layout_history"
+        <ScrollView
+            android:id="@+id/scrollView_history"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_height="match_parent">
 
-            <ListView
-                android:id="@+id/listView_advice"
+            <LinearLayout
+                android:id="@+id/layout_history"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_margin="10dp"
-                android:background="#F44336">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
 
-            </ListView>
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
 
-            <ListView
-                android:id="@+id/listView_advertisement"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_margin="10dp"
-                android:background="#E91E63" />
+                <ListView
+                    android:id="@+id/listView_advice"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_margin="10dp"
+                    android:background="#F44336">
 
-            <ListView
-                android:id="@+id/listView_history"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </LinearLayout>
+                </ListView>
+
+                <ListView
+                    android:id="@+id/listView_advertisement"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_margin="10dp"
+                    android:background="#E91E63" />
+
+                <ListView
+                    android:id="@+id/listView_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+        </ScrollView>
 
         <LinearLayout
             android:id="@+id/layout_setting"
