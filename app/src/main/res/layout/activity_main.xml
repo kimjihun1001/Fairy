@@ -10,7 +10,7 @@
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
-        android:layout_height="650dp">
+        android:layout_height="600dp">
 
         <LinearLayout
             android:id="@+id/layout_home"
