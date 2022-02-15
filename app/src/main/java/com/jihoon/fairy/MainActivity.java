@@ -1,13 +1,19 @@
 package com.jihoon.fairy;
 // Ver 0.2
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
@@ -15,9 +21,13 @@ import android.content.res.AssetFileDescriptor;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.icu.util.Output;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
@@ -58,6 +68,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 
 import java.nio.MappedByteBuffer;
@@ -75,11 +87,10 @@ public class MainActivity extends AppCompatActivity {
 
     SQLiteDatabase sqliteDB;
     FairyDBHelper fairyDBHelper;
-
     protected Interpreter tflite;
     private TensorImage inputImageBuffer;
-    private  int imageSizeX;
-    private  int imageSizeY;
+    private int imageSizeX;
+    private int imageSizeY;
     private TensorBuffer outputProbabilityBuffer;
     private TensorProcessor probabilityProcessor;
     private static final float IMAGE_MEAN = 0.0f;
@@ -115,9 +126,9 @@ public class MainActivity extends AppCompatActivity {
         fairyDBManager.load_values(fairyDBHelper);// 데이터 조회
 
         // TODO : API 호출 코드인가?
-        try{
-            tflite=new Interpreter(loadmodelfile(MainActivity.this));
-        }catch (Exception e) {
+        try {
+            tflite = new Interpreter(loadmodelfile(MainActivity.this));
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -154,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         List<Entry> entries = new ArrayList<Entry>();
 
         for (ModelEmotions modelEmotions1 : Const.List_ModelEmotions) {
-            String second_str = modelEmotions1.getRegistrationDateTime().toString().substring(11, 18).replace(":","");
+            String second_str = modelEmotions1.getRegistrationDateTime().toString().substring(11, 18).replace(":", "");
             float second = Integer.parseInt(second_str);
             float happy = modelEmotions1.getHappinessDegree().floatValue();
             entries.add(new Entry(second, happy));
@@ -177,19 +188,19 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout layout_setting = findViewById(R.id.layout_setting);
 
         switch (index) {
-            case 0 :
+            case 0:
                 layout_home.setVisibility(View.VISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
-            case 1 :
+            case 1:
                 // 기록 탭 리스트뷰와 어뎁터 연결하기
                 history_Adapter = new HistoryListViewAdapter();
                 history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
-                history_ListView = (ListView)findViewById(R.id.listView_history);
+                history_ListView = (ListView) findViewById(R.id.listView_history);
                 history_ListView.setAdapter(history_Adapter);
                 for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
-                    history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
+                    history_Adapter.addItem(Const.List_ModelEmotions.get(i));
                 }
 
                 // TODO : 그래프 새로고침
@@ -198,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                 scrollView_history.setVisibility(View.VISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
-            case 2 :
+            case 2:
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.VISIBLE);
@@ -223,9 +234,26 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri fileUri = data.getData();
                 ContentResolver resolver = getContentResolver();
+
+                // 사진파일 실제 주소 얻기.
+                String realPath = createCopyAndReturnRealPath(this,fileUri);
+
+                //회전 여부 알기
+                ExifInterface exif = null;
+                try {
+                    exif = new ExifInterface(realPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_UNDEFINED);
+
                 try {
                     imgBitmap = MediaStore.Images.Media.getBitmap(resolver, fileUri);
-                    imageView.setImageBitmap(imgBitmap);    // 선택한 이미지 이미지뷰에 표시
+
+                    //이미지 회전시키기
+                    Bitmap bmRotated = rotateBitmap(imgBitmap, orientation);
+                    imageView.setImageBitmap(bmRotated);    // 선택한 이미지 이미지뷰에 표시
                     // Toast.makeText(getApplicationContext(), "사진 불러오기 성공", Toast.LENGTH_SHORT).show();
                     textView_result.setText("사진이 업로드되었습니다. 결과 확인을 눌러주세요.");
                 } catch (Exception e) {
@@ -287,12 +315,11 @@ public class MainActivity extends AppCompatActivity {
 
         inputImageBuffer = loadImage(imgBitmap);
 
-        tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
+        tflite.run(inputImageBuffer.getBuffer(), outputProbabilityBuffer.getBuffer().rewind());
 
-        try{
-            labels = FileUtil.loadLabels(MainActivity.this,"labels.txt");
-        }
-        catch (Exception e){
+        try {
+            labels = FileUtil.loadLabels(MainActivity.this, "labels.txt");
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -328,7 +355,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
 //    public void bt2(View view) {    // 이미지 삭제
 //        try {
 //            File file = getCacheDir();  // 내부저장소 캐시 경로를 받아오기
@@ -347,14 +373,14 @@ public class MainActivity extends AppCompatActivity {
     private SQLiteDatabase init_database() {
         SQLiteDatabase db = null;
 
-        File file = new File (getFilesDir(), "contact.db");
+        File file = new File(getFilesDir(), "contact.db");
 
         System.out.println("PATH : " + file.toString());
 
         try {
-            db = SQLiteDatabase.openOrCreateDatabase(file, null) ;
+            db = SQLiteDatabase.openOrCreateDatabase(file, null);
         } catch (SQLiteException e) {
-            e.printStackTrace() ;
+            e.printStackTrace();
         }
 
         if (db == null) {
@@ -385,19 +411,95 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
-        AssetFileDescriptor fileDescriptor=activity.getAssets().openFd("model.tflite");
-        FileInputStream inputStream=new FileInputStream(fileDescriptor.getFileDescriptor());
-        FileChannel fileChannel=inputStream.getChannel();
+        AssetFileDescriptor fileDescriptor = activity.getAssets().openFd("model.tflite");
+        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+        FileChannel fileChannel = inputStream.getChannel();
         long startoffset = fileDescriptor.getStartOffset();
-        long declaredLength=fileDescriptor.getDeclaredLength();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY,startoffset,declaredLength);
+        long declaredLength = fileDescriptor.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startoffset, declaredLength);
     }
 
     private TensorOperator getPreprocessNormalizeOp() {
         return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
     }
 
-    private TensorOperator getPostprocessNormalizeOp(){
+    private TensorOperator getPostprocessNormalizeOp() {
         return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
+    }
+
+    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Nullable
+    public static String createCopyAndReturnRealPath(@NonNull Context context, @NonNull Uri uri){
+        final ContentResolver contentResolver = context.getContentResolver();
+
+        if (contentResolver == null)
+            return null;
+
+        //파일 경로를 만듬
+
+        String filePath = context.getApplicationInfo().dataDir + File.separator
+                + System.currentTimeMillis();
+
+        File file = new File(filePath);
+        try{
+            //매개변수로 받은 uri 를 통해 이미지에 필요한 데이터를 불러옴
+            InputStream inputStream = contentResolver.openInputStream(uri);
+            if(inputStream == null)
+                return null;
+
+            //이미지 데이터를 다시 내보내면서 file객체에 만들었던 경로 이용
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buf)) > 0)
+                outputStream.write(buf, 0, len);
+                outputStream.close();
+                inputStream.close();
+        }catch (IOException ignore){
+            return null;
+        }
+        return  file.getAbsolutePath();
     }
 }
