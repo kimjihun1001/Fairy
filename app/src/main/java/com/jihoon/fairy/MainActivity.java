@@ -174,19 +174,20 @@ public class MainActivity extends AppCompatActivity {
     public void ChangeView(int index) {
         LinearLayout layout_home = findViewById(R.id.layout_home);
         ScrollView scrollView_history = findViewById(R.id.scrollView_history);
+        LinearLayout layout_photoHistory = findViewById(R.id.layout_photoHistory);
         LinearLayout layout_setting = findViewById(R.id.layout_setting);
-
         switch (index) {
             case 0 :
                 layout_home.setVisibility(View.VISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
+                layout_photoHistory.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 1 :
                 // 기록 탭 리스트뷰와 어뎁터 연결하기
                 history_Adapter = new HistoryListViewAdapter();
                 history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
-                history_ListView = (ListView)findViewById(R.id.listView_history);
+                history_ListView = (ListView)findViewById(R.id.listView_photoHistory);
                 history_ListView.setAdapter(history_Adapter);
                 for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
                     history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
@@ -196,11 +197,19 @@ public class MainActivity extends AppCompatActivity {
 
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.VISIBLE);
+                layout_photoHistory.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 2 :
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
+                layout_photoHistory.setVisibility(View.VISIBLE);
+                layout_setting.setVisibility(View.INVISIBLE);
+                break;
+            case 3 :
+                layout_home.setVisibility(View.INVISIBLE);
+                scrollView_history.setVisibility(View.INVISIBLE);
+                layout_photoHistory.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.VISIBLE);
                 break;
         }

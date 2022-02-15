@@ -103,13 +103,22 @@
                     android:layout_margin="10dp"
                     android:background="#E91E63" />
 
-                <ListView
-                    android:id="@+id/listView_history"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
             </LinearLayout>
         </ScrollView>
+
+        <LinearLayout
+            android:id="@+id/layout_photoHistory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/listView_photoHistory"
+                android:layout_width="match_parent"
+                android:layout_height="300dp">
+
+            </ListView>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/layout_setting"
@@ -144,6 +153,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="기록" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabItem_photoHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="사진" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem_setting"
