@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteException;
 import android.content.res.AssetFileDescriptor;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -153,15 +154,15 @@ public class MainActivity extends AppCompatActivity {
         List<Entry> entries = new ArrayList<Entry>();
 
         for (ModelEmotions modelEmotions1 : Const.List_ModelEmotions) {
-            String day_str = modelEmotions1.getRegistrationDateTime().toString().substring(6, 7);
-            float day = Integer.parseInt(day_str);
+            String second_str = modelEmotions1.getRegistrationDateTime().toString().substring(11, 18).replace(":","");
+            float second = Integer.parseInt(second_str);
             float happy = modelEmotions1.getHappinessDegree().floatValue();
-            entries.add(new Entry(day, happy));
+            entries.add(new Entry(second, happy));
         }
 
         LineDataSet dataSet = new LineDataSet(entries, "Label");
-//        dataSet.setColor();
-//        dataSet.setValueTextColor();
+        dataSet.setColor(Color.WHITE);
+        dataSet.setValueTextColor(Color.WHITE);
 
         LineData lineData = new LineData(dataSet);
         chart.setData(lineData);
