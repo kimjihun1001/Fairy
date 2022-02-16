@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
     private static final float IMAGE_STD = 1.0f;
     private static final float PROBABILITY_MEAN = 0.0f;
     private static final float PROBABILITY_STD = 255.0f;
-    private Bitmap imgBitmap;
     private Bitmap bmRotated;
     private List<String> labels;
 
@@ -256,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 try {
-                    imgBitmap = MediaStore.Images.Media.getBitmap(resolver, fileUri);
+                    Bitmap imgBitmap = MediaStore.Images.Media.getBitmap(resolver, fileUri);
 
                     //이미지 회전시키기
                     bmRotated = rotateBitmap(imgBitmap, orientation);
@@ -312,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
         imageSizeX = imageShape[2];
         DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
 
+        //
         int probabilityTensorIndex = 0;
         int[] probabilityShape =
                 tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
@@ -332,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        //Map자료구조를 이용하여 key - value 형태로 구성
         Map<String, Float> labeledProbability =
                 new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
                         .getMapWithFloatValue();
@@ -404,6 +405,8 @@ public class MainActivity extends AppCompatActivity {
         fairyDBHelper = new FairyDBHelper(this);
     }
 
+    //TensorImage에 처리할 이미지를 추가하는 함수
+    //이미지 학습에 사용한 이미지의 사이즈에 따라 사이즈 조절 코드.
     private TensorImage loadImage(final Bitmap imgBitmap) {
         // Loads bitmap into a TensorImage.
         inputImageBuffer.load(imgBitmap);
@@ -420,6 +423,8 @@ public class MainActivity extends AppCompatActivity {
         return imageProcessor.process(inputImageBuffer);
     }
 
+    //모델을 읽어오는 함수
+    //모델 파일을 MappedByteBuffer 바이트 버퍼형식으로 메모리 로딩해서 Interperter 객체에 전달하면 모델 해설 가능
     private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
         AssetFileDescriptor fileDescriptor=activity.getAssets().openFd("model.tflite");
         FileInputStream inputStream=new FileInputStream(fileDescriptor.getFileDescriptor());
@@ -437,6 +442,7 @@ public class MainActivity extends AppCompatActivity {
         return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
     }
 
+    //파일 절대 경로를 알아오는 코드
     public static String createCopyAndReturnRealPath(@NonNull Context context, @NonNull Uri uri){
         final ContentResolver contentResolver = context.getContentResolver();
 
@@ -444,7 +450,6 @@ public class MainActivity extends AppCompatActivity {
             return null;
 
         //파일 경로를 만듬
-
         String filePath = context.getApplicationInfo().dataDir + File.separator
                 + System.currentTimeMillis();
 
@@ -471,6 +476,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
 
+        //돌아간 정도를 얻고 그만큼 다시 돌리는 코
         Matrix matrix = new Matrix();
         switch (orientation) {
             case ExifInterface.ORIENTATION_NORMAL:
