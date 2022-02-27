@@ -31,4 +31,7 @@ public class ConstSQL {
 
     // DB 불러오기
     public static final String SQL_SELECT_TBL_EMOTIONS = "SELECT * FROM " + TBL_EMOTIONS;
+
+    // DB 날짜 역순으로 불러오기
+    public static final String SQL_SELECT_TBL_EMOTIONS_SORT_DATE = "SELECT * FROM " + TBL_EMOTIONS + " ORDER BY " + COL_DATETIME + " DESC";
 }

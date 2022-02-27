@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -37,10 +39,12 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.material.tabs.TabLayout;
-import com.jihoon.fairy.Adapter.HistoryListViewAdapter;
+import com.jihoon.fairy.Adapter.HistoryRecyclerViewAdapter;
+import com.jihoon.fairy.Adapter.PhotoHistoryListViewAdapter;
 import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
+import com.jihoon.fairy.Model.HistoryRecyclerItem;
 import com.jihoon.fairy.Model.ModelEmotions;
 
 import org.tensorflow.lite.DataType;
@@ -68,6 +72,7 @@ import java.time.LocalDateTime;
 
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     private List<String> labels;
 
     ListView history_ListView;
-    HistoryListViewAdapter history_Adapter;
+    PhotoHistoryListViewAdapter history_Adapter;
 
     // 그래프 그리기
     LineChart chart;
@@ -190,7 +195,6 @@ public class MainActivity extends AppCompatActivity {
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 1 :
-                
                 // TODO : 그래프 새로고침
 
                 layout_home.setVisibility(View.INVISIBLE);
@@ -199,14 +203,46 @@ public class MainActivity extends AppCompatActivity {
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 2 :
-                // 기록 탭 리스트뷰와 어뎁터 연결하기
-                history_Adapter = new HistoryListViewAdapter();
-                history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
-                history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
-                history_ListView.setAdapter(history_Adapter);
-                for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
-                    history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
+                // 리사이클러뷰 아이템 생성
+                ArrayList<ModelEmotions> Sort_Date_List_ModelEmotions = new ArrayList<ModelEmotions>();
+                FairyDBManager fairyDBManager = new FairyDBManager();
+                fairyDBManager.load_sort_values(fairyDBHelper, Sort_Date_List_ModelEmotions);
+
+                ArrayList<String> list = new ArrayList<>();
+                for (int i = 0; i < Sort_Date_List_ModelEmotions.size(); i++) {
+                    String tempString;
+                    tempString = Sort_Date_List_ModelEmotions.get(i).getRegistrationDateTime().format(DateTimeFormatter.ofPattern("yyyy년\nMM월\ndd일"));
+
+                    int tempNum = 0;
+                    if (list.size() > 0) {
+                        for (String temp : list) {
+                            if (temp == tempString) {
+                                tempNum++;
+                            }
+                        }
+                        if (tempNum != 0) {
+                            list.add(tempString);
+                        }
+                    }
+                    else {
+                        list.add(tempString);
+                    }
                 }
+                RecyclerView recyclerView = findViewById(R.id.recyclerView_historyDate);
+                recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+                HistoryRecyclerViewAdapter adapter = new HistoryRecyclerViewAdapter(list);
+                recyclerView.setAdapter(adapter);
+
+
+//                // 기록 탭 리스트뷰와 어뎁터 연결하기
+//                history_Adapter = new PhotoHistoryListViewAdapter();
+//                history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
+//                history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
+//                history_ListView.setAdapter(history_Adapter);
+//                for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
+//                    history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
+//                }
 
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
@@ -363,9 +399,6 @@ public class MainActivity extends AppCompatActivity {
         textView_dateTime.setText(modelEmotions.getRegistrationDateTime().toString());
 
     }
-
-
-
 //    public void bt2(View view) {    // 이미지 삭제
 //        try {
 //            File file = getCacheDir();  // 내부저장소 캐시 경로를 받아오기
@@ -518,5 +551,4 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
-
 }

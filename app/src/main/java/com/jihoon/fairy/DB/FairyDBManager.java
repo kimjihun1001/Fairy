@@ -12,6 +12,7 @@ import com.jihoon.fairy.Model.ModelEmotions;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class FairyDBManager {
 
@@ -69,6 +70,36 @@ public class FairyDBManager {
             modelEmotions.setImageName(imageName);
 
             Const.List_ModelEmotions.add(modelEmotions);
+        }
+    }
+    // 데이터 조회(SELECT)
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void load_sort_values(FairyDBHelper fairyDBHelper, ArrayList<ModelEmotions> Sort_Date_List_ModelEmotions) {
+
+        SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery(ConstSQL.SQL_SELECT_TBL_EMOTIONS_SORT_DATE, null);
+
+        while (cursor.moveToNext()) {
+            String registrationDateTime_String = cursor.getString(1);
+            Double happinessDegree = cursor.getDouble(2);
+            Double sadnessDegree = cursor.getDouble(3);
+            Double neutralDegree = cursor.getDouble(4);
+            String imagePath = cursor.getString(5);
+            String imageName = cursor.getString(6);
+
+            // 형변환
+            LocalDateTime registrationDateTime = LocalDateTime.parse(registrationDateTime_String);
+
+            ModelEmotions modelEmotions = new ModelEmotions();
+
+            modelEmotions.setRegistrationDateTime(registrationDateTime);
+            modelEmotions.setHappinessDegree(happinessDegree);
+            modelEmotions.setSadnessDegree(sadnessDegree);
+            modelEmotions.setNeutralDegree(neutralDegree);
+            modelEmotions.setImagePath(imagePath);
+            modelEmotions.setImageName(imageName);
+
+            Sort_Date_List_ModelEmotions.add(modelEmotions);
         }
     }
 }

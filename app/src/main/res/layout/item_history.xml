@@ -1,60 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginRight="10dp">
 
+    <TextView
+        android:id="@+id/history_DateItem"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:text="2022년\n2월\n22일"
+        android:textAlignment="gravity"
+        android:textSize="20sp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/history_Photo"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                tools:srcCompat="@drawable/ic_launcher_foreground" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/history_RegistrationDateTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:gravity="center_vertical"
-                    android:text="측정 시간" />
-
-                <TextView
-                    android:id="@+id/history_HappinessDegree"
-                    android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:gravity="center_vertical"
-                    android:text="행복 지수" />
-
-                <TextView
-                    android:id="@+id/history_SadnessDegree"
-                    android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:gravity="center_vertical"
-                    android:text="슬픔 지수" />
-
-                <TextView
-                    android:id="@+id/history_NeutralDegree"
-                    android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:gravity="center_vertical"
-                    android:text="무표정 지수" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
 </LinearLayout>
