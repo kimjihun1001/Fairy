@@ -37,6 +37,8 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -175,6 +177,29 @@ public class MainActivity extends AppCompatActivity {
 
         // Chart Style
         chart.setBackgroundColor(Color.rgb(21,244,250));
+        chart.getDescription().setEnabled(false);
+        chart.setTouchEnabled(true);
+        chart.setDrawGridBackground(false);
+        chart.setDragXEnabled(true);
+        chart.setDragYEnabled(false);
+        chart.setScaleEnabled(false);
+        chart.setPinchZoom(true);
+        XAxis xAxis;
+        xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextColor(Color.BLACK);
+        xAxis.setAxisLineColor(Color.BLACK);
+        xAxis.setSpaceMax(0.3f);
+        xAxis.setSpaceMin(0.3f);
+        YAxis yAxis;
+        yAxis = chart.getAxisLeft();
+        chart.getAxisRight().setEnabled(false);
+        yAxis.setTextColor(Color.BLACK);
+        yAxis.setAxisLineColor(Color.BLACK);
+        yAxis.setAxisMaximum(30f);
+        yAxis.setAxisMinimum(-10f);
+        // yAxis.setSpaceMax(0.3f);
+        // yAxis.setSpaceMin(0.3f);
 
         LineDataSet dataSet = new LineDataSet(entries, "Label");
         dataSet.setColor(Color.BLUE);
