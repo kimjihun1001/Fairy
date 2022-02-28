@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,13 +24,13 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
     // 아이템 뷰를 저장하는 뷰홀더 클래스.
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textView1 ;
+        Button button ;
 
         ViewHolder(View itemView) {
             super(itemView) ;
 
             // 뷰 객체에 대한 참조. (hold strong reference)
-            textView1 = itemView.findViewById(R.id.history_DateItem) ;
+            button = itemView.findViewById(R.id.history_DateItem) ;
         }
     }
 
@@ -54,7 +55,7 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
     @Override
     public void onBindViewHolder(HistoryRecyclerViewAdapter.ViewHolder holder, int position) {
         String text = mData.get(position) ;
-        holder.textView1.setText(text) ;
+        holder.button.setText(text) ;
     }
 
     // getItemCount() - 전체 데이터 갯수 리턴.

@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -213,21 +214,11 @@ public class MainActivity extends AppCompatActivity {
                     String tempString;
                     tempString = Sort_Date_List_ModelEmotions.get(i).getRegistrationDateTime().format(DateTimeFormatter.ofPattern("yyyy년\nMM월\ndd일"));
 
-                    int tempNum = 0;
-                    if (list.size() > 0) {
-                        for (String temp : list) {
-                            if (temp == tempString) {
-                                tempNum++;
-                            }
-                        }
-                        if (tempNum != 0) {
-                            list.add(tempString);
-                        }
-                    }
-                    else {
+                    if (!list.contains(tempString)) {
                         list.add(tempString);
                     }
                 }
+
                 RecyclerView recyclerView = findViewById(R.id.recyclerView_historyDate);
                 recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
