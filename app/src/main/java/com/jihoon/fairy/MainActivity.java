@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -172,6 +173,9 @@ public class MainActivity extends AppCompatActivity {
             entries.add(new Entry(second, happy));
         }
 
+        // Chart Style
+        chart.setBackgroundColor(Color.rgb(21,244,250));
+
         LineDataSet dataSet = new LineDataSet(entries, "Label");
         dataSet.setColor(Color.BLUE);
         dataSet.setValueTextColor(Color.BLUE);
@@ -179,6 +183,10 @@ public class MainActivity extends AppCompatActivity {
         LineData lineData = new LineData(dataSet);
         chart.setData(lineData);
         chart.invalidate(); // refresh -> 안됨 ...
+    }
+
+    private void setChart() {
+
     }
 
     // 탭 선택 시, 표시 화면 변경하기
