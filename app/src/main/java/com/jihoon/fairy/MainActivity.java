@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -257,16 +258,6 @@ public class MainActivity extends AppCompatActivity {
 
                 HistoryRecyclerViewAdapter adapter = new HistoryRecyclerViewAdapter(list);
                 recyclerView.setAdapter(adapter);
-
-
-//                // 기록 탭 리스트뷰와 어뎁터 연결하기
-//                history_Adapter = new PhotoHistoryListViewAdapter();
-//                history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
-//                history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
-//                history_ListView.setAdapter(history_Adapter);
-//                for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
-//                    history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
-//                }
 
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
@@ -573,6 +564,28 @@ public class MainActivity extends AppCompatActivity {
         catch (OutOfMemoryError e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void Click_button_history(View view) {
+        Button button = (Button) findViewById(R.id.history_DateItem);
+
+        // 기록 탭 리스트뷰와 어뎁터 연결하기
+        history_Adapter = new PhotoHistoryListViewAdapter();
+        history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
+        history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
+        history_ListView.setAdapter(history_Adapter);
+        for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
+            String tempString = Const.List_ModelEmotions.get(i)
+                    .getRegistrationDateTime().format(DateTimeFormatter.ofPattern("yyyy년\nMM월\ndd일"));
+
+            // &&&& 왜 계속 3월로만 뜨는지를 모르겠음 가장 마지막에 뜨는 아이템에 대한 버튼 정보만 가져옴,,,
+            Toast.makeText(this, button.getText(), Toast.LENGTH_SHORT).show();
+
+            if (button.getText() == tempString) {
+                history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
+            }
         }
     }
 }

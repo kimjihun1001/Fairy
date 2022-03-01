@@ -12,6 +12,7 @@
         android:gravity="center"
         android:text="2022년\n2월\n22일"
         android:textAlignment="gravity"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:onClick="Click_button_history"/>
 
 </LinearLayout>
