@@ -43,6 +43,9 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.tabs.TabLayout;
 import com.jihoon.fairy.Adapter.HistoryRecyclerViewAdapter;
 import com.jihoon.fairy.Adapter.PhotoHistoryListViewAdapter;
@@ -73,12 +76,17 @@ import java.io.IOException;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -170,19 +178,68 @@ public class MainActivity extends AppCompatActivity {
         history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
         history_ListView.setAdapter(history_Adapter);
 
-        // 그래프 그리기
-        chart = (LineChart) findViewById(R.id.chart);
-        List<Entry> entries = new ArrayList<Entry>();
+    }
 
-        for (ModelEmotions modelEmotions1 : Const.List_ModelEmotions) {
-            String second_str = modelEmotions1.getRegistrationDateTime().toString().substring(11, 18).replace(":","");
-            float second = Integer.parseInt(second_str);
-            float happy = modelEmotions1.getHappinessDegree().floatValue();
-            entries.add(new Entry(second, happy));
+    // 그래프 그리기
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void drawChart() {
+        chart = (LineChart) findViewById(R.id.chart);
+        List<Entry> happyEntries = new ArrayList<Entry>();
+        List<Entry> sadEntries = new ArrayList<Entry>();
+
+        // 날짜별로 데이터를 묶기 위해 map을 만들기
+        Map<LocalDate, List<ModelEmotions>> map = new HashMap<>();
+        for (ModelEmotions modelEmotions : Const.List_ModelEmotions) {
+            LocalDate localDate = modelEmotions.getRegistrationDateTime().toLocalDate();
+
+            if (map.containsKey(localDate)) {
+                // 해당 날짜를 key로 검색해서 value에 modelemotions 추가하기
+                map.get(localDate).add(modelEmotions);
+            }
+            else {
+                List<ModelEmotions> List_emotionsOfDay = new ArrayList<>();
+                List_emotionsOfDay.add(modelEmotions);
+                map.put(localDate, List_emotionsOfDay);
+            }
+        }
+
+        // map에 있는 데이터를 그래프로 넣기
+        // X축의 label로 사용할 리스트 만들기
+        List<String> List_localDateStr = new ArrayList<>();
+        // x축 간격
+        float valueOfX = 0;
+        for (LocalDate localDate: map.keySet()) {
+            // map의 key값을 X축 label로 사용하기
+            String localDateStr = String.valueOf(localDate);
+            // 년도 빼고 월 일만 표시하기
+            List_localDateStr.add(localDateStr.substring(5,10));
+
+            // 같은 날의 감정을 평균 내기
+            float sumOfHappy = 0;
+            float sumOfSad = 0;
+
+            for (ModelEmotions modelEmotions: map.get(localDate)) {
+                float happy = modelEmotions.getHappinessDegree().floatValue();
+                float sad = modelEmotions.getSadnessDegree().floatValue();
+                sumOfHappy += happy;
+                sumOfSad += sad;
+            }
+
+            float averageOfHappy;
+            float averageOfSad;
+            float sizeOfList = map.get(localDate).size();
+            averageOfHappy = sumOfHappy / sizeOfList;
+            averageOfSad = sumOfSad / sizeOfList;
+
+            // 데이터 넣기
+            happyEntries.add(new Entry(valueOfX, averageOfHappy));
+            sadEntries.add(new Entry(valueOfX, averageOfSad));
+            valueOfX += 1;
+
         }
 
         // Chart Style
-        chart.setBackgroundColor(Color.rgb(21,244,250));
+        chart.setBackgroundColor(Color.rgb(254,247,235));
         chart.getDescription().setEnabled(false);
         chart.setTouchEnabled(true);
         chart.setDrawGridBackground(false);
@@ -190,34 +247,62 @@ public class MainActivity extends AppCompatActivity {
         chart.setDragYEnabled(false);
         chart.setScaleEnabled(false);
         chart.setPinchZoom(true);
+
         XAxis xAxis;
         xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextSize(10);
         xAxis.setTextColor(Color.BLACK);
         xAxis.setAxisLineColor(Color.BLACK);
-        xAxis.setSpaceMax(0.3f);
-        xAxis.setSpaceMin(0.3f);
+        xAxis.setDrawAxisLine(false);
+        xAxis.setDrawGridLines(false);
+        // 레이블 간격
+        // xAxis.setSpaceMax(0.3f);
+        // xAxis.setSpaceMin(0.3f);
+        // 축을 숫자가 아니라 날짜로 표시
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(List_localDateStr));
+        // 축 레이블 표시 간격 : 2로 하면 2칸마다 레이블 표시
+        // xAxis.setGranularity(2f);
+        // xAxis.setGranularityEnabled(true);
+
         YAxis yAxis;
         yAxis = chart.getAxisLeft();
         chart.getAxisRight().setEnabled(false);
+        xAxis.setTextSize(10);
         yAxis.setTextColor(Color.BLACK);
         yAxis.setAxisLineColor(Color.BLACK);
-        yAxis.setAxisMaximum(30f);
-        yAxis.setAxisMinimum(-10f);
+        yAxis.setDrawAxisLine(false);
+        yAxis.setDrawGridLines(false);
+        yAxis.setAxisMaximum(1f);
+        yAxis.setAxisMinimum(0f);
         // yAxis.setSpaceMax(0.3f);
         // yAxis.setSpaceMin(0.3f);
 
-        LineDataSet dataSet = new LineDataSet(entries, "Label");
-        dataSet.setColor(Color.BLUE);
-        dataSet.setValueTextColor(Color.BLUE);
+        // 차트에 데이터 연결
+        LineDataSet dataSet = new LineDataSet(happyEntries, "기쁨");
+        dataSet.setColor(Color.rgb(251,99,118));
+        dataSet.setValueTextColor(Color.rgb(251,99,118));
+        dataSet.setValueTextSize(10);
+        dataSet.setLineWidth(2);
+        dataSet.setCircleColor(Color.BLACK);
+        // 원 둘레 굵기
+        // dataSet.setCircleRadius(15);
 
-        LineData lineData = new LineData(dataSet);
+        LineDataSet dataSet2 = new LineDataSet(sadEntries, "슬픔");
+        dataSet2.setColor(Color.rgb(82,122,184));
+        dataSet2.setValueTextColor(Color.rgb(82,122,184));
+        dataSet2.setValueTextSize(10);
+        dataSet2.setLineWidth(2);
+        dataSet2.setCircleColor(Color.BLACK);
+
+        LineData lineData = new LineData(dataSet, dataSet2);
         chart.setData(lineData);
         chart.invalidate(); // refresh -> 안됨 ...
-    }
 
-    private void setChart() {
-
+        // 최대 x좌표 기준으로 몇개를 보여줄지
+        chart.setVisibleXRange(5, 5);
+        // 가장 최근에 추가한 데이터의 위치로 이동처리
+        chart.moveViewToX(dataSet.getEntryCount());
     }
 
     // 탭 선택 시, 표시 화면 변경하기
@@ -236,6 +321,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 1 :
                 // TODO : 그래프 새로고침
+                drawChart();
 
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.VISIBLE);
@@ -581,6 +667,7 @@ public class MainActivity extends AppCompatActivity {
         String folderName = (String) button.getText();
         Toast.makeText(this, folderName, Toast.LENGTH_SHORT).show();
 
+        // 리스트뷰의 목록 초기화
         history_Adapter.clearItem();
 
         for (ModelEmotions modelEmotions : Const.List_ModelEmotions) {

@@ -71,6 +71,7 @@ public class PhotoHistoryListViewAdapter extends BaseAdapter {
         listViewItemList.add(item);
     }
 
+    // 날짜 버튼 선택할 때마다 리스트 초기화하도록 메쏘드 하나 만들었음.
     public void clearItem() {
         listViewItemList.clear();
     }

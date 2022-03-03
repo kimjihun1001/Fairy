@@ -74,7 +74,7 @@
             android:id="@+id/scrollView_history"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible">
+            android:visibility="visible">
 
             <LinearLayout
                 android:id="@+id/layout_history"
@@ -85,12 +85,13 @@
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chart"
                     android:layout_width="match_parent"
-                    android:layout_height="300dp" />
+                    android:layout_height="300dp"
+                    android:layout_margin="10dp" />
 
                 <ListView
                     android:id="@+id/listView_advice"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="150dp"
                     android:layout_margin="10dp"
                     android:background="#F44336">
 
@@ -99,7 +100,7 @@
                 <ListView
                     android:id="@+id/listView_advertisement"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="150dp"
                     android:layout_margin="10dp"
                     android:background="#E91E63" />
 
@@ -111,18 +112,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView_historyDate"
                 android:layout_width="match_parent"
-                android:layout_height="100dp">
-            </androidx.recyclerview.widget.RecyclerView>
+                android:layout_height="100dp"></androidx.recyclerview.widget.RecyclerView>
+
             <ListView
                 android:id="@+id/listView_historyPhoto"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            </ListView>
+                android:layout_height="wrap_content"></ListView>
         </LinearLayout>
 
         <LinearLayout
