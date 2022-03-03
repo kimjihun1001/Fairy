@@ -165,6 +165,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // 기록 탭 리스트뷰와 어뎁터 연결하기
+        history_Adapter = new PhotoHistoryListViewAdapter();
+        history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
+        history_ListView.setAdapter(history_Adapter);
+
         // 그래프 그리기
         chart = (LineChart) findViewById(R.id.chart);
         List<Entry> entries = new ArrayList<Entry>();
@@ -569,23 +574,25 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void Click_button_history(View view) {
-        Button button = (Button) findViewById(R.id.history_DateItem);
+        // findViewById 사용해서 고정된 애를 받아오면 안됨. view 파라미터를 통해서 클릭 이벤트가 발생한 애를 받아오기
+        Button button = (Button) view;
 
-        // 기록 탭 리스트뷰와 어뎁터 연결하기
-        history_Adapter = new PhotoHistoryListViewAdapter();
-        history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
-        history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
-        history_ListView.setAdapter(history_Adapter);
-        for (int i = 0; i < Const.List_ModelEmotions.size(); i++) {
-            String tempString = Const.List_ModelEmotions.get(i)
-                    .getRegistrationDateTime().format(DateTimeFormatter.ofPattern("yyyy년\nMM월\ndd일"));
+        // button의 text가 String이 아니라서 (String)으로 casting해줌.
+        String folderName = (String) button.getText();
+        Toast.makeText(this, folderName, Toast.LENGTH_SHORT).show();
 
-            // &&&& 왜 계속 3월로만 뜨는지를 모르겠음 가장 마지막에 뜨는 아이템에 대한 버튼 정보만 가져옴,,,
-            Toast.makeText(this, button.getText(), Toast.LENGTH_SHORT).show();
+        history_Adapter.clearItem();
 
-            if (button.getText() == tempString) {
-                history_Adapter.addItem(Const.List_ModelEmotions.get(i)) ;
+        for (ModelEmotions modelEmotions : Const.List_ModelEmotions) {
+            String fileName = modelEmotions.getRegistrationDateTime().format(DateTimeFormatter.ofPattern("yyyy년\nMM월\ndd일"));
+
+            // String의 Value 비교할 때는 == 아니라 equals 사용해야 함.
+            if (folderName.equals(fileName)) {
+                history_Adapter.addItem(modelEmotions);
             }
         }
+
+        history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
+
     }
 }

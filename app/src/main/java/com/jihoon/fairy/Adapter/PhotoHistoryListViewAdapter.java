@@ -68,8 +68,10 @@ public class PhotoHistoryListViewAdapter extends BaseAdapter {
     }
 
     public void addItem(ModelEmotions item) {
-
         listViewItemList.add(item);
-        // this.notifyDataSetChanged();
+    }
+
+    public void clearItem() {
+        listViewItemList.clear();
     }
 }
