@@ -441,11 +441,6 @@ public class MainActivity extends AppCompatActivity {
         // 객체에 이름 부여
         currentModelEmotions.setImageName(localDateTime.toString());
 
-        // 사진 로컬(내부 저장소)에 저장
-        // 이미지 경로 반환받아서 객체에 이미지 경로 저장
-        String imgPath = SaveImage(bmRotated, currentModelEmotions.getImageName());
-        currentModelEmotions.setImagePath(imgPath);
-
         // API 호출
         int imageTensorIndex = 0;
         int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
@@ -490,6 +485,14 @@ public class MainActivity extends AppCompatActivity {
             currentModelEmotions.setSadnessDegree(Double.valueOf(label_probability[1]));
             currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
         }
+
+        //이미지 화질 다운시키기 (로딩 속도 증가를 위한)
+        bmRotated = bmRotated.createScaledBitmap(bmRotated,50,50,true);
+
+        // 사진 로컬(내부 저장소)에 저장
+        // 이미지 경로 반환받아서 객체에 이미지 경로 저장
+        String imgPath = SaveImage(bmRotated, currentModelEmotions.getImageName());
+        currentModelEmotions.setImagePath(imgPath);
 
         // DB 저장
         FairyDBManager fairyDBManager = new FairyDBManager();
