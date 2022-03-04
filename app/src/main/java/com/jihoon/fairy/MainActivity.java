@@ -79,9 +79,13 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -139,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         // DB 불러오기 + App의 Const List에 데이터 저장
         fairyDBManager.load_values(fairyDBHelper);
 
+        // ⭐️ 최초 한 번만 실행하기!!!
         // 초기 예시 데이터 만들기 + DB에 추가 + App의 Const List에 데이터 저장
         for (ModelEmotions modelEmotions1: exampleDataMaker.MakeExampleData()) {
             fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
@@ -209,6 +214,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // map에 있는 데이터를 그래프로 넣기
+        // map을 key값(LocalDate)에 대해 내림차순으로 정렬하기
+//        Object[] mapkey = map.keySet().toArray();
+//        Arrays.sort(mapkey);
         // X축의 label로 사용할 리스트 만들기
         List<String> List_localDateStr = new ArrayList<>();
         // x축 간격
@@ -216,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
         for (LocalDate localDate: map.keySet()) {
             // map의 key값을 X축 label로 사용하기
             String localDateStr = String.valueOf(localDate);
+            System.out.println(localDateStr);
             // 년도 빼고 월 일만 표시하기
             List_localDateStr.add(localDateStr.substring(5,10));
 
@@ -262,10 +271,11 @@ public class MainActivity extends AppCompatActivity {
         xAxis.setDrawAxisLine(false);
         xAxis.setDrawGridLines(false);
         // 레이블 간격
-        // xAxis.setSpaceMax(0.3f);
-        // xAxis.setSpaceMin(0.3f);
+        // xAxis.setSpaceMax(1f);
+        // xAxis.setSpaceMin(1f);
         // 축을 숫자가 아니라 날짜로 표시
         xAxis.setValueFormatter(new IndexAxisValueFormatter(List_localDateStr));
+        // TODO : 이게 데이터 수가 많아지면 오류가 생기네 자꾸...
         // 축 레이블 표시 간격 : 2로 하면 2칸마다 레이블 표시
         // xAxis.setGranularity(2f);
         // xAxis.setGranularityEnabled(true);
