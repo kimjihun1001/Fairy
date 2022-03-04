@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -36,23 +35,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.tabs.TabLayout;
 import com.jihoon.fairy.Adapter.HistoryRecyclerViewAdapter;
 import com.jihoon.fairy.Adapter.PhotoHistoryListViewAdapter;
 import com.jihoon.fairy.Const.Const;
+import com.jihoon.fairy.Control.ExampleDataMaker;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
-import com.jihoon.fairy.Model.HistoryRecyclerItem;
 import com.jihoon.fairy.Model.ModelEmotions;
 
 import org.tensorflow.lite.DataType;
@@ -76,8 +72,6 @@ import java.io.IOException;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -85,7 +79,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,9 +126,17 @@ public class MainActivity extends AppCompatActivity {
         sqliteDB = init_database();
         init_tables(); // 테이블 생성
 
-        // DB 불러오기 싱글톤 변경 필요함
+        // DB 매니저 - 싱글톤 변경 필요함
         ModelEmotions modelEmotions;
         FairyDBManager fairyDBManager = new FairyDBManager();
+
+        // 초기 예시 데이터 만들기 + DB에 추가
+        ExampleDataMaker exampleDataMaker = new ExampleDataMaker();
+        for (ModelEmotions modelEmotions1: exampleDataMaker.MakeExampleData()) {
+            fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
+        }
+
+        // DB 불러오기 + App의 Const List에 데이터 저장
         fairyDBManager.load_values(fairyDBHelper);// 데이터 조회
 
         // TODO : API 호출 코드인가?
@@ -177,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
         history_Adapter = new PhotoHistoryListViewAdapter();
         history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
         history_ListView.setAdapter(history_Adapter);
-
     }
 
     // 그래프 그리기

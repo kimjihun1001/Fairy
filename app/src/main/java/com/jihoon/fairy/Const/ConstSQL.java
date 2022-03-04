@@ -27,7 +27,7 @@ public class ConstSQL {
     // DB 저장
     public static final String SQL_INSERT_TBL_EMOTIONS = "INSERT OR REPLACE INTO " + TBL_EMOTIONS + " " +
             "(" +
-            COL_DATETIME + ", " + COL_HAPPINESS + ", " + COL_NEUTRAL + ", " + COL_SADNESS + ", " + COL_IMAGEPATH + ", " + COL_IMAGENAME + ") VALUES ";
+            COL_DATETIME + ", " + COL_HAPPINESS + ", " + COL_SADNESS + ", " + COL_NEUTRAL + ", " + COL_IMAGEPATH + ", " + COL_IMAGENAME + ") VALUES ";
 
     // DB 불러오기
     public static final String SQL_SELECT_TBL_EMOTIONS = "SELECT * FROM " + TBL_EMOTIONS;

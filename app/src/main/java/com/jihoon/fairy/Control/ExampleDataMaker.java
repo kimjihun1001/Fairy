@@ -4,15 +4,23 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.jihoon.fairy.Const.Const;
+import com.jihoon.fairy.DB.FairyDBHelper;
+import com.jihoon.fairy.DB.FairyDBManager;
 import com.jihoon.fairy.Model.ModelEmotions;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MakeExampleData {
+public class ExampleDataMaker {
+    public ExampleDataMaker() {
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public MakeExampleData() {
+    public List<ModelEmotions> MakeExampleData() {
+        List<ModelEmotions> ListToReturn = new ArrayList<>();
+
         String[] List_exampleImageName = {
                 "2022-02-05T10:30:30", "2022-02-06T10:30:30", "2022-02-07T10:30:30"
                 , "2022-02-08T10:30:30", "2022-02-09T10:30:30", "2022-02-10T10:30:30"
@@ -32,5 +40,9 @@ public class MakeExampleData {
         modelEmotions.setHappinessDegree(List_exampleHappiness[0]);
         modelEmotions.setNeutralDegree(List_exampleNeutral[0]);
         modelEmotions.setSadnessDegree(List_exampleSadness[0]);
+
+        ListToReturn.add(modelEmotions);
+
+        return ListToReturn;
     }
 }
