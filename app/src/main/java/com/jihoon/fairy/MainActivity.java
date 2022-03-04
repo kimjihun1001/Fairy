@@ -18,11 +18,9 @@ import android.database.sqlite.SQLiteException;
 import android.content.res.AssetFileDescriptor;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -122,14 +120,12 @@ public class MainActivity extends AppCompatActivity {
 
         // 내부 저장소 경로
         Const.InternalStorage = this.getFilesDir();
+        // AssetsManager
+        Const.assetManager = getResources().getAssets() ;
 
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
         textView_dateTime = findViewById(R.id.textView_dateTime);
-
-        // 이미지 내부 저장소 저장 테스트 중... 왜 안될가
-        // Bitmap imageBitmap = BitmapFactory.decodeFile("../Control/exampleImage/1.jpeg");
-        // imageView.setImageBitmap(imageBitmap);
 
         // DB 받아줄 변수 설정
         sqliteDB = init_database();
@@ -147,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
         for (ModelEmotions modelEmotions1: exampleDataMaker.MakeExampleData()) {
             fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
         }
-
 
         // TODO : API 호출 코드인가?
         try{

@@ -1,5 +1,7 @@
 package com.jihoon.fairy.Const;
 
+import android.content.res.AssetManager;
+
 import com.jihoon.fairy.Model.ModelEmotions;
 
 import java.io.File;
@@ -14,6 +16,7 @@ public class Const {
     }
 
     public static File InternalStorage;
+    public static AssetManager assetManager;
 
     // Double 형태의 수치를 "00.00%" 형태의 String으로 변환하기 위한 메쏘드
     public static String ConvertDoubleToPercentage(Double num) {
