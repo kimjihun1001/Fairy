@@ -432,7 +432,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             tempFile.createNewFile();   // 자동으로 빈 파일을 생성하기
             FileOutputStream out = new FileOutputStream(tempFile);  // 파일을 쓸 수 있는 스트림을 준비하기
-            imgBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);   // compress 함수를 사용해 스트림에 비트맵을 저장하기
+            imgBitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);   // compress 함수를 사용해 스트림에 비트맵을 저장하기
+            // 아래 코드로 확인해보니, quality를 낮춰서 저장하는 것은 파일 크기에 영향을 주지 않음.
+            // System.out.println("축소 파일에서 퀄리티 낮춘 크기: " + imgBitmap.getRowBytes());
             out.close();    // 스트림 닫아주기
             Toast.makeText(getApplicationContext(), "파일 저장 성공", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
@@ -501,7 +503,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //이미지 화질 다운시키기 (로딩 속도 증가를 위한)
-        bmRotated = bmRotated.createScaledBitmap(bmRotated,50,50,true);
+        System.out.println("원본 파일 크기: " + bmRotated.getRowBytes());
+        bmRotated = bmRotated.createScaledBitmap(bmRotated,bmRotated.getWidth()/4,bmRotated.getHeight()/4,true);
+        System.out.println("축소 파일 크기: " + bmRotated.getRowBytes());
 
         // 사진 로컬(내부 저장소)에 저장
         // 이미지 경로 반환받아서 객체에 이미지 경로 저장
