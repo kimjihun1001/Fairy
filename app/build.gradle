@@ -33,6 +33,7 @@ android {
     buildFeatures {
         mlModelBinding true
     }
+    compileSdkVersion 32
 }
 
 dependencies {
@@ -49,4 +50,8 @@ dependencies {
 
     // MPAndroidChart : 그래프 그리기 위한 라이브러리
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    // AsyncTask는 Android 11 버전부터 사용 불가해서 RxJava를 사용해보려고 했으나 실패.
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.15'
 }

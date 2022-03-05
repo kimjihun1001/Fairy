@@ -1,5 +1,6 @@
 package com.jihoon.fairy;
 // Ver 0.3
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -29,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -101,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap bmRotated;
 
-    private double happy,sad,neutral;
+    private double happy, sad, neutral;
 
     ListView history_ListView;
     PhotoHistoryListViewAdapter history_Adapter;
@@ -118,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         // 내부 저장소 경로
         Const.InternalStorage = this.getFilesDir();
         // AssetsManager
-        Const.assetManager = getResources().getAssets() ;
+        Const.assetManager = getResources().getAssets();
 
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
@@ -138,12 +140,12 @@ public class MainActivity extends AppCompatActivity {
 
         // ⭐️ 최초 한 번만 실행하기!!!
         // 초기 예시 데이터 만들기 + DB에 추가 + App의 Const List에 데이터 저장
-        for (ModelEmotions modelEmotions1: exampleDataMaker.MakeExampleData()) {
+        for (ModelEmotions modelEmotions1 : exampleDataMaker.MakeExampleData()) {
             fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
         }
 
         //Azure Face API 사용
-        faceServiceClient = new FaceServiceRestClient(apiEndpoint,subscriptionKey);
+        faceServiceClient = new FaceServiceRestClient(apiEndpoint, subscriptionKey);
 
         // 앱이 켜지면 홈 화면 탭이 선택된 상태로 만들기
         // 홈 화면 탭에 대한 FrameLayout 내의 화면은 XML에서 visible로 설정되어있음.
@@ -175,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 기록 탭 리스트뷰와 어뎁터 연결하기
         history_Adapter = new PhotoHistoryListViewAdapter();
-        history_ListView = (ListView)findViewById(R.id.listView_historyPhoto);
+        history_ListView = (ListView) findViewById(R.id.listView_historyPhoto);
         history_ListView.setAdapter(history_Adapter);
     }
 
@@ -194,8 +196,7 @@ public class MainActivity extends AppCompatActivity {
             if (map.containsKey(localDate)) {
                 // 해당 날짜를 key로 검색해서 value에 modelemotions 추가하기
                 map.get(localDate).add(modelEmotions);
-            }
-            else {
+            } else {
                 List<ModelEmotions> List_emotionsOfDay = new ArrayList<>();
                 List_emotionsOfDay.add(modelEmotions);
                 map.put(localDate, List_emotionsOfDay);
@@ -210,18 +211,18 @@ public class MainActivity extends AppCompatActivity {
         List<String> List_localDateStr = new ArrayList<>();
         // x축 간격
         float valueOfX = 0;
-        for (LocalDate localDate: map.keySet()) {
+        for (LocalDate localDate : map.keySet()) {
             // map의 key값을 X축 label로 사용하기
             String localDateStr = String.valueOf(localDate);
             System.out.println(localDateStr);
             // 년도 빼고 월 일만 표시하기
-            List_localDateStr.add(localDateStr.substring(5,10));
+            List_localDateStr.add(localDateStr.substring(5, 10));
 
             // 같은 날의 감정을 평균 내기
             float sumOfHappy = 0;
             float sumOfSad = 0;
 
-            for (ModelEmotions modelEmotions: map.get(localDate)) {
+            for (ModelEmotions modelEmotions : map.get(localDate)) {
                 float happy = modelEmotions.getHappinessDegree().floatValue();
                 float sad = modelEmotions.getSadnessDegree().floatValue();
                 sumOfHappy += happy;
@@ -242,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Chart Style
-        chart.setBackgroundColor(Color.rgb(254,247,235));
+        chart.setBackgroundColor(Color.rgb(254, 247, 235));
         chart.getDescription().setEnabled(false);
         chart.setTouchEnabled(true);
         chart.setDrawGridBackground(false);
@@ -284,8 +285,8 @@ public class MainActivity extends AppCompatActivity {
 
         // 차트에 데이터 연결
         LineDataSet dataSet = new LineDataSet(happyEntries, "기쁨");
-        dataSet.setColor(Color.rgb(251,99,118));
-        dataSet.setValueTextColor(Color.rgb(251,99,118));
+        dataSet.setColor(Color.rgb(251, 99, 118));
+        dataSet.setValueTextColor(Color.rgb(251, 99, 118));
         dataSet.setValueTextSize(10);
         dataSet.setLineWidth(2);
         dataSet.setCircleColor(Color.BLACK);
@@ -293,8 +294,8 @@ public class MainActivity extends AppCompatActivity {
         // dataSet.setCircleRadius(15);
 
         LineDataSet dataSet2 = new LineDataSet(sadEntries, "슬픔");
-        dataSet2.setColor(Color.rgb(82,122,184));
-        dataSet2.setValueTextColor(Color.rgb(82,122,184));
+        dataSet2.setColor(Color.rgb(82, 122, 184));
+        dataSet2.setValueTextColor(Color.rgb(82, 122, 184));
         dataSet2.setValueTextSize(10);
         dataSet2.setLineWidth(2);
         dataSet2.setCircleColor(Color.BLACK);
@@ -317,13 +318,13 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout layout_photoHistory = findViewById(R.id.layout_photoHistory);
         LinearLayout layout_setting = findViewById(R.id.layout_setting);
         switch (index) {
-            case 0 :
+            case 0:
                 layout_home.setVisibility(View.VISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_photoHistory.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
-            case 1 :
+            case 1:
                 // TODO : 그래프 새로고침
                 drawChart();
 
@@ -332,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
                 layout_photoHistory.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
-            case 2 :
+            case 2:
                 // 리사이클러뷰 아이템 생성
                 ArrayList<ModelEmotions> Sort_Date_List_ModelEmotions = new ArrayList<ModelEmotions>();
                 FairyDBManager fairyDBManager = new FairyDBManager();
@@ -359,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
                 layout_photoHistory.setVisibility(View.VISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
-            case 3 :
+            case 3:
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_photoHistory.setVisibility(View.INVISIBLE);
@@ -387,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
                 ContentResolver resolver = getContentResolver();
 
                 // 사진파일 실제 주소 얻기.
-                String realPath = createCopyAndReturnRealPath(this,fileUri);
+                String realPath = createCopyAndReturnRealPath(this, fileUri);
 
                 //회전 여부 알기
                 ExifInterface exif = null;
@@ -455,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
 
         //이미지 화질 다운시키기 (로딩 속도 증가를 위한)
         System.out.println("원본 파일 크기: " + bmRotated.getRowBytes());
-        bmRotated = bmRotated.createScaledBitmap(bmRotated,bmRotated.getWidth()/4,bmRotated.getHeight()/4,true);
+        bmRotated = bmRotated.createScaledBitmap(bmRotated, bmRotated.getWidth() / 4, bmRotated.getHeight() / 4, true);
         System.out.println("축소 파일 크기: " + bmRotated.getRowBytes());
 
         // 사진 로컬(내부 저장소)에 저장
@@ -495,14 +496,14 @@ public class MainActivity extends AppCompatActivity {
     private SQLiteDatabase init_database() {
         SQLiteDatabase db = null;
 
-        File file = new File (getFilesDir(), "contact.db");
+        File file = new File(getFilesDir(), "contact.db");
 
         System.out.println("PATH : " + file.toString());
 
         try {
-            db = SQLiteDatabase.openOrCreateDatabase(file, null) ;
+            db = SQLiteDatabase.openOrCreateDatabase(file, null);
         } catch (SQLiteException e) {
-            e.printStackTrace() ;
+            e.printStackTrace();
         }
 
         if (db == null) {
@@ -517,7 +518,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //파일 절대 경로를 알아오는 코드
-    public static String createCopyAndReturnRealPath(@NonNull Context context, @NonNull Uri uri){
+    public static String createCopyAndReturnRealPath(@NonNull Context context, @NonNull Uri uri) {
         final ContentResolver contentResolver = context.getContentResolver();
 
         if (contentResolver == null)
@@ -528,10 +529,10 @@ public class MainActivity extends AppCompatActivity {
                 + System.currentTimeMillis();
 
         File file = new File(filePath);
-        try{
+        try {
             //매개변수로 받은 uri 를 통해 이미지에 필요한 데이터를 불러옴
             InputStream inputStream = contentResolver.openInputStream(uri);
-            if(inputStream == null)
+            if (inputStream == null)
                 return null;
 
             //이미지 데이터를 다시 내보내면서 file객체에 만들었던 경로 이용
@@ -542,10 +543,10 @@ public class MainActivity extends AppCompatActivity {
                 outputStream.write(buf, 0, len);
             outputStream.close();
             inputStream.close();
-        }catch (IOException ignore){
+        } catch (IOException ignore) {
             return null;
         }
-        return  file.getAbsolutePath();
+        return file.getAbsolutePath();
     }
 
     //파일 회전
@@ -587,8 +588,7 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
             bitmap.recycle();
             return bmRotated;
-        }
-        catch (OutOfMemoryError e) {
+        } catch (OutOfMemoryError e) {
             e.printStackTrace();
             return null;
         }
@@ -600,6 +600,8 @@ public class MainActivity extends AppCompatActivity {
         mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream((outputStream.toByteArray()));
+
+        // TODO : AsyncTask는 API30(Android 11)까지만 사용 가능해서 오류 발생하는 듯. build.gradle(app) 파일에서 SDK를 32 -> 30으로 수정하니까 다른 기능의 최소 레벨이 31이라서 또 오류 발생함.
 
         AsyncTask<InputStream, String, Face[]> detectTask = new AsyncTask<InputStream, String, Face[]>() {
             //로딩바 사용
@@ -661,8 +663,7 @@ public class MainActivity extends AppCompatActivity {
         detectTask.execute(inputStream);
     }
 
-    private void getResult(String data)
-    {
+    private void getResult(String data) {
         Gson gson = new Gson();
         Face[] face = gson.fromJson(data, Face[].class);
 
@@ -688,20 +689,12 @@ public class MainActivity extends AppCompatActivity {
             arrayList.add(value);
         }
 
-        for (int i =1; i <= counter; i++)
-        {
-            if(rank.get(rank.size() - i) == "Happiness")
-            {
+        for (int i = 1; i <= counter; i++) {
+            if (rank.get(rank.size() - i) == "Happiness") {
                 happy = arrayList.get(rank.size() - i);
-            }
-
-            else if (rank.get(rank.size() - i) == "Sadness")
-            {
+            } else if (rank.get(rank.size() - i) == "Sadness") {
                 sad = arrayList.get(rank.size() - i);
-            }
-
-            else if (rank.get(rank.size() - i) == "Neutral")
-            {
+            } else if (rank.get(rank.size() - i) == "Neutral") {
                 neutral = arrayList.get(rank.size() - i);
             }
         }
