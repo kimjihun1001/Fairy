@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,10 +20,12 @@ import android.database.sqlite.SQLiteException;
 import android.content.res.AssetFileDescriptor;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -43,6 +47,7 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
 import com.jihoon.fairy.Adapter.HistoryRecyclerViewAdapter;
 import com.jihoon.fairy.Adapter.PhotoHistoryListViewAdapter;
 import com.jihoon.fairy.Const.Const;
@@ -50,21 +55,12 @@ import com.jihoon.fairy.Control.ExampleDataMaker;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
 import com.jihoon.fairy.Model.ModelEmotions;
+import com.microsoft.projectoxford.face.FaceServiceClient;
+import com.microsoft.projectoxford.face.FaceServiceRestClient;
+import com.microsoft.projectoxford.face.contract.Face;
 
-import org.tensorflow.lite.DataType;
-import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.support.common.FileUtil;
-import org.tensorflow.lite.support.common.TensorOperator;
-import org.tensorflow.lite.support.common.TensorProcessor;
-import org.tensorflow.lite.support.common.ops.NormalizeOp;
-import org.tensorflow.lite.support.image.ImageProcessor;
-import org.tensorflow.lite.support.image.TensorImage;
-import org.tensorflow.lite.support.image.ops.ResizeOp;
-import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp;
-import org.tensorflow.lite.support.label.TensorLabel;
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
-
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -86,6 +82,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -97,18 +94,14 @@ public class MainActivity extends AppCompatActivity {
     SQLiteDatabase sqliteDB;
     FairyDBHelper fairyDBHelper;
 
-    protected Interpreter tflite;
-    private TensorImage inputImageBuffer;
-    private  int imageSizeX;
-    private  int imageSizeY;
-    private TensorBuffer outputProbabilityBuffer;
-    private TensorProcessor probabilityProcessor;
-    private static final float IMAGE_MEAN = 0.0f;
-    private static final float IMAGE_STD = 1.0f;
-    private static final float PROBABILITY_MEAN = 0.0f;
-    private static final float PROBABILITY_STD = 255.0f;
+    private final String apiEndpoint = "https://koreacentral.api.cognitive.microsoft.com/face/v1.0";
+    private final String subscriptionKey = "3c9f199990c54486bd55515df1226852";
+
+    private FaceServiceClient faceServiceClient;
+
     private Bitmap bmRotated;
-    private List<String> labels;
+
+    private double happy,sad,neutral;
 
     ListView history_ListView;
     PhotoHistoryListViewAdapter history_Adapter;
@@ -149,12 +142,8 @@ public class MainActivity extends AppCompatActivity {
             fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
         }
 
-        // TODO : API 호출 코드인가?
-        try{
-            tflite=new Interpreter(loadmodelfile(MainActivity.this));
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        //Azure Face API 사용
+        faceServiceClient = new FaceServiceRestClient(apiEndpoint,subscriptionKey);
 
         // 앱이 켜지면 홈 화면 탭이 선택된 상태로 만들기
         // 홈 화면 탭에 대한 FrameLayout 내의 화면은 XML에서 visible로 설정되어있음.
@@ -410,7 +399,6 @@ public class MainActivity extends AppCompatActivity {
                 int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                         ExifInterface.ORIENTATION_UNDEFINED);
 
-
                 try {
                     Bitmap imgBitmap = MediaStore.Images.Media.getBitmap(resolver, fileUri);
 
@@ -423,6 +411,8 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "사진 불러오기 실패", Toast.LENGTH_SHORT).show();
                 }
+
+                detectandFrame(bmRotated);
             }
         }
     }
@@ -432,11 +422,11 @@ public class MainActivity extends AppCompatActivity {
         try {
             tempFile.createNewFile();   // 자동으로 빈 파일을 생성하기
             FileOutputStream out = new FileOutputStream(tempFile);  // 파일을 쓸 수 있는 스트림을 준비하기
-            imgBitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);   // compress 함수를 사용해 스트림에 비트맵을 저장하기
+            imgBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);   // compress 함수를 사용해 스트림에 비트맵을 저장하기
             // 아래 코드로 확인해보니, quality를 낮춰서 저장하는 것은 파일 크기에 영향을 주지 않음.
             // System.out.println("축소 파일에서 퀄리티 낮춘 크기: " + imgBitmap.getRowBytes());
             out.close();    // 스트림 닫아주기
-            Toast.makeText(getApplicationContext(), "파일 저장 성공", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "파일 저장 성공", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "파일 저장 실패", Toast.LENGTH_SHORT).show();
         }
@@ -445,6 +435,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void Click_button_result(View view) {
+
         // 객체 생성
         ModelEmotions currentModelEmotions = new ModelEmotions();
 
@@ -457,50 +448,10 @@ public class MainActivity extends AppCompatActivity {
         // 객체에 이름 부여
         currentModelEmotions.setImageName(localDateTime.toString());
 
-        // API 호출
-        int imageTensorIndex = 0;
-        int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
-        imageSizeY = imageShape[1];
-        imageSizeX = imageShape[2];
-        DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
-
-        //
-        int probabilityTensorIndex = 0;
-        int[] probabilityShape =
-                tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
-        DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
-
-        inputImageBuffer = new TensorImage(imageDataType);
-        outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
-        probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
-
-        inputImageBuffer = loadImage(bmRotated);
-
-        tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
-
-        try{
-            labels = FileUtil.loadLabels(MainActivity.this,"labels.txt");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-
-        //Map자료구조를 이용하여 key - value 형태로 구성
-        Map<String, Float> labeledProbability =
-                new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
-                        .getMapWithFloatValue();
-
-        for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
-//            if (entry.getValue()==maxValueInMap) {
-//                String[] label = labeledProbability.keySet().toArray(new String[0]);
-//            }
-            Float[] label_probability = labeledProbability.values().toArray(new Float[0]);
-
-            // 객체에 감정 분석 결과 값 부여
-            currentModelEmotions.setHappinessDegree(Double.valueOf(label_probability[0]));
-            currentModelEmotions.setSadnessDegree(Double.valueOf(label_probability[1]));
-            currentModelEmotions.setNeutralDegree(Double.valueOf(label_probability[2]));
-        }
+        // 객체에 감정 분석 결과 값 부여
+        currentModelEmotions.setHappinessDegree(happy);
+        currentModelEmotions.setSadnessDegree(sad);
+        currentModelEmotions.setNeutralDegree(neutral);
 
         //이미지 화질 다운시키기 (로딩 속도 증가를 위한)
         System.out.println("원본 파일 크기: " + bmRotated.getRowBytes());
@@ -565,43 +516,6 @@ public class MainActivity extends AppCompatActivity {
         fairyDBHelper = new FairyDBHelper(this);
     }
 
-    //TensorImage에 처리할 이미지를 추가하는 함수
-    //이미지 학습에 사용한 이미지의 사이즈에 따라 사이즈 조절 코드.
-    private TensorImage loadImage(final Bitmap imgBitmap) {
-        // Loads bitmap into a TensorImage.
-        inputImageBuffer.load(imgBitmap);
-
-        // Creates processor for the TensorImage.
-        int cropSize = Math.min(imgBitmap.getWidth(), imgBitmap.getHeight());
-        // TODO(b/143564309): Fuse ops inside ImageProcessor.
-        ImageProcessor imageProcessor =
-                new ImageProcessor.Builder()
-                        .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
-                        .add(new ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
-                        .add(getPreprocessNormalizeOp())
-                        .build();
-        return imageProcessor.process(inputImageBuffer);
-    }
-
-    //모델을 읽어오는 함수
-    //모델 파일을 MappedByteBuffer 바이트 버퍼형식으로 메모리 로딩해서 Interperter 객체에 전달하면 모델 해설 가능
-    private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
-        AssetFileDescriptor fileDescriptor=activity.getAssets().openFd("model.tflite");
-        FileInputStream inputStream=new FileInputStream(fileDescriptor.getFileDescriptor());
-        FileChannel fileChannel=inputStream.getChannel();
-        long startoffset = fileDescriptor.getStartOffset();
-        long declaredLength=fileDescriptor.getDeclaredLength();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY,startoffset,declaredLength);
-    }
-
-    private TensorOperator getPreprocessNormalizeOp() {
-        return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
-    }
-
-    private TensorOperator getPostprocessNormalizeOp(){
-        return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
-    }
-
     //파일 절대 경로를 알아오는 코드
     public static String createCopyAndReturnRealPath(@NonNull Context context, @NonNull Uri uri){
         final ContentResolver contentResolver = context.getContentResolver();
@@ -634,6 +548,7 @@ public class MainActivity extends AppCompatActivity {
         return  file.getAbsolutePath();
     }
 
+    //파일 회전
     public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
 
         //돌아간 정도를 얻고 그만큼 다시 돌리는 코
@@ -676,6 +591,119 @@ public class MainActivity extends AppCompatActivity {
         catch (OutOfMemoryError e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private void detectandFrame(final Bitmap mBitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        //bitmap 크기를 압축 시키는 코드
+        mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream((outputStream.toByteArray()));
+
+        AsyncTask<InputStream, String, Face[]> detectTask = new AsyncTask<InputStream, String, Face[]>() {
+            //로딩바 사용
+            ProgressDialog pd = new ProgressDialog(MainActivity.this);
+
+            //
+            @Override
+            protected Face[] doInBackground(InputStream... inputStreams) {
+
+                publishProgress("Detecting...");
+                //FaceApi에서 사용할 값들 설정.(ex : FaceServiceClient.FaceAttributeType.Age 사진의 나이를 판단.)
+                FaceServiceClient.FaceAttributeType[] faceAttr = new FaceServiceClient.FaceAttributeType[]{
+                        FaceServiceClient.FaceAttributeType.Emotion
+                };
+
+                try {
+                    Face[] result = faceServiceClient.detect(inputStreams[0],
+                            true,           // returnFaceId
+                            false,         // returnFaceLandmarks
+                            faceAttr);        // returnFaceAttributes
+
+                    if (result == null) {
+                        publishProgress("Detection failed. Nothing detected.");
+                    }
+
+                    publishProgress(String.format("Detection Finished. %d face(s) detected", result.length));
+                    return result;
+                } catch (Exception e) {
+                    publishProgress("Detection Failed: " + e.getMessage());
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPreExecute() {
+                pd.show();
+            }
+
+            @Override
+            //로딩바 문구
+            protected void onProgressUpdate(String... values) {
+                pd.setMessage("잠시만 기다려주세요.");
+            }
+
+            //
+            @SuppressLint("WrongThread")
+            @Override
+            protected void onPostExecute(Face[] faces) {
+                pd.dismiss();
+
+                //Java에서 JSON 사용
+                Gson gson = new Gson();
+                String data = gson.toJson(faces);
+
+                getResult(data);
+            }
+        };
+
+        detectTask.execute(inputStream);
+    }
+
+    private void getResult(String data)
+    {
+        Gson gson = new Gson();
+        Face[] face = gson.fromJson(data, Face[].class);
+
+        TreeMap<Double, String> treeMap = new TreeMap<>();
+        treeMap.put(face[0].faceAttributes.emotion.happiness, "Happiness");
+        treeMap.put(face[0].faceAttributes.emotion.anger, "Anger");
+        treeMap.put(face[0].faceAttributes.emotion.disgust, "Disgust");
+        treeMap.put(face[0].faceAttributes.emotion.sadness, "Sadness");
+        treeMap.put(face[0].faceAttributes.emotion.neutral, "Neutral");
+        treeMap.put(face[0].faceAttributes.emotion.surprise, "Surprise");
+        treeMap.put(face[0].faceAttributes.emotion.fear, "Fear");
+
+
+        ArrayList<Double> arrayList = new ArrayList<>();
+        TreeMap<Integer, String> rank = new TreeMap<>();
+
+        int counter = 0;
+        for (Map.Entry<Double, String> entry : treeMap.entrySet()) {
+            String key = entry.getValue();
+            Double value = entry.getKey();
+            rank.put(counter, key);
+            counter++;
+            arrayList.add(value);
+        }
+
+        for (int i =1; i <= counter; i++)
+        {
+            if(rank.get(rank.size() - i) == "Happiness")
+            {
+                happy = arrayList.get(rank.size() - i);
+            }
+
+            else if (rank.get(rank.size() - i) == "Sadness")
+            {
+                sad = arrayList.get(rank.size() - i);
+            }
+
+            else if (rank.get(rank.size() - i) == "Neutral")
+            {
+                neutral = arrayList.get(rank.size() - i);
+            }
         }
     }
 
