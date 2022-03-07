@@ -61,6 +61,8 @@ import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
 
+import org.reactivestreams.Subscriber;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -86,12 +88,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     TextView textView_result;
     TextView textView_dateTime;
     ImageView imageView_savedImage;
+
+    Disposable backgroundtask;
 
     SQLiteDatabase sqliteDB;
     FairyDBHelper fairyDBHelper;
@@ -405,6 +415,12 @@ public class MainActivity extends AppCompatActivity {
 
                     //이미지 회전시키기
                     bmRotated = rotateBitmap(imgBitmap, orientation);
+                    int a = bmRotated.getHeight();
+
+                    if (a > 1000)
+                    {
+                        bmRotated = bmRotated.createScaledBitmap(bmRotated, bmRotated.getWidth() / 4, bmRotated.getHeight() / 4, true);
+                    }
 
                     imageView.setImageBitmap(bmRotated);    // 선택한 이미지 이미지뷰에 표시
                     // Toast.makeText(getApplicationContext(), "사진 불러오기 성공", Toast.LENGTH_SHORT).show();
@@ -594,6 +610,57 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    void BackgroundTask(InputStream... inputStreams) {
+//onPreExecute
+        ProgressDialog pd = new ProgressDialog(MainActivity.this);
+        pd.show();
+        pd.setMessage("잠시만 기다려 주세요.");
+
+        backgroundtask = Observable.fromCallable(() -> {
+//doInBackground
+
+            FaceServiceClient.FaceAttributeType[] faceAttr = new FaceServiceClient.FaceAttributeType[]{
+                    FaceServiceClient.FaceAttributeType.Emotion
+            };
+
+            try {
+                Face[] result = faceServiceClient.detect(inputStreams[0],
+                        true,           // returnFaceId
+                        false,         // returnFaceLandmarks
+                        faceAttr);        // returnFaceAttributes
+
+                if (result == null) {
+                }
+
+                return result;
+            } catch (Exception e) {
+                return null;
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext((ObservableSource<? extends Face[]>) throwable -> Observable.just(100,200,300))
+                .subscribe(
+                (result) -> {
+//onPostExecute
+                    if(result == null)
+                    {
+                        backgroundtask.dispose();
+                    }
+
+                    else{
+                        pd.dismiss();
+
+                        //Java에서 JSON 사용
+                        Gson gson = new Gson();
+                        String data = gson.toJson(result);
+
+                        getResult(data);
+                        backgroundtask.dispose();
+                    }
+                });
+    }
+
     private void detectandFrame(final Bitmap mBitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         //bitmap 크기를 압축 시키는 코드
@@ -601,66 +668,8 @@ public class MainActivity extends AppCompatActivity {
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream((outputStream.toByteArray()));
 
-        // TODO : AsyncTask는 API30(Android 11)까지만 사용 가능해서 오류 발생하는 듯. build.gradle(app) 파일에서 SDK를 32 -> 30으로 수정하니까 다른 기능의 최소 레벨이 31이라서 또 오류 발생함.
-
-        AsyncTask<InputStream, String, Face[]> detectTask = new AsyncTask<InputStream, String, Face[]>() {
-            //로딩바 사용
-            ProgressDialog pd = new ProgressDialog(MainActivity.this);
-
-            //
-            @Override
-            protected Face[] doInBackground(InputStream... inputStreams) {
-
-                publishProgress("Detecting...");
-                //FaceApi에서 사용할 값들 설정.(ex : FaceServiceClient.FaceAttributeType.Age 사진의 나이를 판단.)
-                FaceServiceClient.FaceAttributeType[] faceAttr = new FaceServiceClient.FaceAttributeType[]{
-                        FaceServiceClient.FaceAttributeType.Emotion
-                };
-
-                try {
-                    Face[] result = faceServiceClient.detect(inputStreams[0],
-                            true,           // returnFaceId
-                            false,         // returnFaceLandmarks
-                            faceAttr);        // returnFaceAttributes
-
-                    if (result == null) {
-                        publishProgress("Detection failed. Nothing detected.");
-                    }
-
-                    publishProgress(String.format("Detection Finished. %d face(s) detected", result.length));
-                    return result;
-                } catch (Exception e) {
-                    publishProgress("Detection Failed: " + e.getMessage());
-                    return null;
-                }
-            }
-
-            @Override
-            protected void onPreExecute() {
-                pd.show();
-            }
-
-            @Override
-            //로딩바 문구
-            protected void onProgressUpdate(String... values) {
-                pd.setMessage("잠시만 기다려주세요.");
-            }
-
-            //
-            @SuppressLint("WrongThread")
-            @Override
-            protected void onPostExecute(Face[] faces) {
-                pd.dismiss();
-
-                //Java에서 JSON 사용
-                Gson gson = new Gson();
-                String data = gson.toJson(faces);
-
-                getResult(data);
-            }
-        };
-
-        detectTask.execute(inputStream);
+        // Rxjava 코드
+        BackgroundTask(inputStream);
     }
 
     private void getResult(String data) {
@@ -688,6 +697,9 @@ public class MainActivity extends AppCompatActivity {
             counter++;
             arrayList.add(value);
         }
+        happy = 0;
+        sad = 0;
+        neutral = 0;
 
         for (int i = 1; i <= counter; i++) {
             if (rank.get(rank.size() - i) == "Happiness") {
