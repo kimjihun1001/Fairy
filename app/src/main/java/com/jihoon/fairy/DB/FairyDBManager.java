@@ -27,8 +27,10 @@ public class FairyDBManager {
         String imagePath = modelEmotions.getImagePath();
         String imageName = modelEmotions.getImageName();
 
+        // App의 Const List에 추가함.
         Const.List_ModelEmotions.add(modelEmotions);
 
+        // DB에 추가함.
         String sqlInsert = ConstSQL.SQL_INSERT_TBL_EMOTIONS +
                 "(" +
                 "'" + RegistrationDateTime + "', " +
@@ -45,6 +47,11 @@ public class FairyDBManager {
     // 데이터 조회(SELECT)
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void load_values(FairyDBHelper fairyDBHelper) {
+
+        // App을 종료했다가 빠르게 다시 실행할 경우, 리스트뷰에 사진이 중복되어 나타나는 문제.
+        // 원인: 리스트가 초기화되지 않기 때문으로 추정됨.
+        // 해결: 아래 코드로 DB 불러올 때, 리스트 초기화.
+        Const.List_ModelEmotions.clear();
 
         SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery(ConstSQL.SQL_SELECT_TBL_EMOTIONS, null);
@@ -69,6 +76,7 @@ public class FairyDBManager {
             modelEmotions.setImagePath(imagePath);
             modelEmotions.setImageName(imageName);
 
+            // App의 Const List에 추가함.
             Const.List_ModelEmotions.add(modelEmotions);
         }
     }
