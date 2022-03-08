@@ -47,7 +47,9 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.jihoon.fairy.Adapter.HistoryRecyclerViewAdapter;
@@ -62,6 +64,7 @@ import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
 
 import org.reactivestreams.Subscriber;
+import org.tensorflow.lite.schema.ReverseSequenceOptions;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -82,6 +85,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,17 +145,23 @@ public class MainActivity extends AppCompatActivity {
         init_tables(); // 테이블 생성
 
         // DB 매니저 - 싱글톤 변경 필요함
-        ModelEmotions modelEmotions;
         FairyDBManager fairyDBManager = new FairyDBManager();
 
         ExampleDataMaker exampleDataMaker = new ExampleDataMaker();
         // DB 불러오기 + App의 Const List에 데이터 저장
         fairyDBManager.load_values(fairyDBHelper);
 
-        // ⭐️ 최초 한 번만 실행하기!!!
+        // 이미 초기 예시 데이터 추가했는지 확인하기
+        for (ModelEmotions modelEmotions : Const.List_ModelEmotions) {
+            if (modelEmotions.getImageName().equals("2022-02-05T10:30:30")) {
+                Const.isInitialDataAdded = true;
+            }
+        }
         // 초기 예시 데이터 만들기 + DB에 추가 + App의 Const List에 데이터 저장
-        for (ModelEmotions modelEmotions1 : exampleDataMaker.MakeExampleData()) {
-            fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
+        if (Const.isInitialDataAdded == false) {
+            for (ModelEmotions modelEmotions1 : exampleDataMaker.MakeExampleData()) {
+                fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
+            }
         }
 
         //Azure Face API 사용
@@ -215,16 +225,18 @@ public class MainActivity extends AppCompatActivity {
 
         // map에 있는 데이터를 그래프로 넣기
         // map을 key값(LocalDate)에 대해 내림차순으로 정렬하기
-//        Object[] mapkey = map.keySet().toArray();
-//        Arrays.sort(mapkey);
-        // X축의 label로 사용할 리스트 만들기
+        ArrayList<LocalDate> mapKey = new ArrayList<LocalDate>(map.keySet());
+        mapKey.sort(Comparator.naturalOrder());
+        // ValueFormatter만들 때 사용할 리스트 - float -> String
+        // X축의 label로 사용할 리스트
         List<String> List_localDateStr = new ArrayList<>();
+
         // x축 간격
         float valueOfX = 0;
-        for (LocalDate localDate : map.keySet()) {
+        for (LocalDate localDate : mapKey) {
+            System.out.println(localDate.toString());
             // map의 key값을 X축 label로 사용하기
             String localDateStr = String.valueOf(localDate);
-            System.out.println(localDateStr);
             // 년도 빼고 월 일만 표시하기
             List_localDateStr.add(localDateStr.substring(5, 10));
 
@@ -245,9 +257,13 @@ public class MainActivity extends AppCompatActivity {
             averageOfHappy = sumOfHappy / sizeOfList;
             averageOfSad = sumOfSad / sizeOfList;
 
+            // 100 곱하고 소수점 둘째자리에서 반올림 - 예: 0.123456 -> 1234.56 -> 1235 -> 12.35
+            float valueOfY_happy = Math.round(averageOfHappy * 10000)/100;
+            float valueOfY_sad = Math.round(averageOfSad * 10000)/100;
+
             // 데이터 넣기
-            happyEntries.add(new Entry(valueOfX, averageOfHappy));
-            sadEntries.add(new Entry(valueOfX, averageOfSad));
+            happyEntries.add(new Entry(valueOfX, valueOfY_happy));
+            sadEntries.add(new Entry(valueOfX, valueOfY_sad));
             valueOfX += 1;
 
         }
@@ -271,14 +287,14 @@ public class MainActivity extends AppCompatActivity {
         xAxis.setDrawAxisLine(false);
         xAxis.setDrawGridLines(false);
         // 레이블 간격
-        // xAxis.setSpaceMax(1f);
-        // xAxis.setSpaceMin(1f);
+        xAxis.setSpaceMax(1f);
+        xAxis.setSpaceMin(1f);
         // 축을 숫자가 아니라 날짜로 표시
         xAxis.setValueFormatter(new IndexAxisValueFormatter(List_localDateStr));
         // TODO : 이게 데이터 수가 많아지면 오류가 생기네 자꾸...
         // 축 레이블 표시 간격 : 2로 하면 2칸마다 레이블 표시
-        // xAxis.setGranularity(2f);
-        // xAxis.setGranularityEnabled(true);
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
 
         YAxis yAxis;
         yAxis = chart.getAxisLeft();
@@ -288,10 +304,12 @@ public class MainActivity extends AppCompatActivity {
         yAxis.setAxisLineColor(Color.BLACK);
         yAxis.setDrawAxisLine(false);
         yAxis.setDrawGridLines(false);
-        yAxis.setAxisMaximum(1f);
+        yAxis.setAxisMaximum(100f);
         yAxis.setAxisMinimum(0f);
         // yAxis.setSpaceMax(0.3f);
         // yAxis.setSpaceMin(0.3f);
+        // Y축 레이블 뒤에 % 붙여줌
+        yAxis.setValueFormatter(new PercentFormatter());
 
         // 차트에 데이터 연결
         LineDataSet dataSet = new LineDataSet(happyEntries, "기쁨");
@@ -302,6 +320,8 @@ public class MainActivity extends AppCompatActivity {
         dataSet.setCircleColor(Color.BLACK);
         // 원 둘레 굵기
         // dataSet.setCircleRadius(15);
+        // 데이터 값 뒤에 % 붙여줌
+        dataSet.setValueFormatter(new PercentFormatter());
 
         LineDataSet dataSet2 = new LineDataSet(sadEntries, "슬픔");
         dataSet2.setColor(Color.rgb(82, 122, 184));
@@ -309,6 +329,8 @@ public class MainActivity extends AppCompatActivity {
         dataSet2.setValueTextSize(10);
         dataSet2.setLineWidth(2);
         dataSet2.setCircleColor(Color.BLACK);
+        // 데이터 값 뒤에 % 붙여줌
+        dataSet2.setValueFormatter(new PercentFormatter());
 
         LineData lineData = new LineData(dataSet, dataSet2);
         chart.setData(lineData);
@@ -719,7 +741,7 @@ public class MainActivity extends AppCompatActivity {
 
         // button의 text가 String이 아니라서 (String)으로 casting해줌.
         String folderName = (String) button.getText();
-        Toast.makeText(this, folderName, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, folderName, Toast.LENGTH_SHORT).show();
 
         // 리스트뷰의 목록 초기화
         history_Adapter.clearItem();

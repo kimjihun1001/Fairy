@@ -17,6 +17,7 @@ public class Const {
 
     public static File InternalStorage;
     public static AssetManager assetManager;
+    public static boolean isInitialDataAdded = false;   // 초기 데이터 한 번만 추가하도록 하려고 만든 변수
 
     // Double 형태의 수치를 "00.00%" 형태의 String으로 변환하기 위한 메쏘드
     public static String ConvertDoubleToPercentage(Double num) {
