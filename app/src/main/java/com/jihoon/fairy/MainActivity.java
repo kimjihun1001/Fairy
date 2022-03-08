@@ -102,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     TextView textView_result;
-    TextView textView_dateTime;
     ImageView imageView_savedImage;
 
     Disposable backgroundtask;
@@ -138,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
-        textView_dateTime = findViewById(R.id.textView_dateTime);
 
         // DB 받아줄 변수 설정
         sqliteDB = init_database();
@@ -147,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
         // DB 매니저 - 싱글톤 변경 필요함
         FairyDBManager fairyDBManager = new FairyDBManager();
 
-        ExampleDataMaker exampleDataMaker = new ExampleDataMaker();
         // DB 불러오기 + App의 Const List에 데이터 저장
         fairyDBManager.load_values(fairyDBHelper);
 
@@ -158,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         // 초기 예시 데이터 만들기 + DB에 추가 + App의 Const List에 데이터 저장
+        ExampleDataMaker exampleDataMaker = new ExampleDataMaker();
         if (Const.isInitialDataAdded == false) {
             for (ModelEmotions modelEmotions1 : exampleDataMaker.MakeExampleData()) {
                 fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
@@ -513,23 +511,8 @@ public class MainActivity extends AppCompatActivity {
     private void ShowResult(ModelEmotions modelEmotions) {
 
         textView_result.setText("기쁨: " + Const.ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()) + "슬픔: " + Const.ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()) + "무표정: " + Const.ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
-        textView_dateTime.setText(modelEmotions.getRegistrationDateTime().toString());
 
     }
-//    public void bt2(View view) {    // 이미지 삭제
-//        try {
-//            File file = getCacheDir();  // 내부저장소 캐시 경로를 받아오기
-//            File[] flist = file.listFiles();
-//            for (int i = 0; i < flist.length; i++) {    // 배열의 크기만큼 반복
-//                if (flist[i].getName().equals(imgName)) {   // 삭제하고자 하는 이름과 같은 파일명이 있으면 실행
-//                    flist[i].delete();  // 파일 삭제
-//                    Toast.makeText(getApplicationContext(), "파일 삭제 성공", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        } catch (Exception e) {
-//            Toast.makeText(getApplicationContext(), "파일 삭제 실패", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
     private SQLiteDatabase init_database() {
         SQLiteDatabase db = null;
