@@ -10,9 +10,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -33,6 +35,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -739,6 +743,67 @@ public class MainActivity extends AppCompatActivity {
         }
 
         history_Adapter.notifyDataSetChanged();     // 변화 생기면 업데이트되도록 함
+
+    }
+
+    // "사용자 정보 수정 버튼" 클릭 이벤트 핸들러
+    public void Click_correctUserData(View view) {
+        ImageButton imageButton = (ImageButton) view;
+
+        TextView textView_userName = findViewById(R.id.textView_userName);
+        TextView textView_userAge = findViewById(R.id.textView_userAge);
+
+        AlertDialog.Builder alert_correctUserData = new AlertDialog.Builder(this);
+
+        String alertTitle;
+        String alertMessage;
+
+        if (imageButton.getId() == R.id.imageButton_userName) {
+            alertTitle = "사용자 이름";
+            alertMessage = "이름을 입력해주세요";
+        }
+        else if (imageButton.getId() == R.id.imageButton_userAge) {
+            alertTitle = "사용자 나이";
+            alertMessage = "나이를 입력해주세요";
+        }
+        else {
+            alertTitle = "";
+            alertMessage = "";
+        }
+
+        // Alert의 제목, 메시지 설정하기
+        alert_correctUserData.setTitle(alertTitle);
+        alert_correctUserData.setMessage(alertMessage);
+
+        // 사용자로부터 텍스트 입력받기 위한 박스
+        EditText input = new EditText(this);
+        alert_correctUserData.setView(input);
+
+        alert_correctUserData.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (imageButton.getId() == R.id.imageButton_userName) {
+                    textView_userName.setText(input.getText().toString());
+                }
+                else if (imageButton.getId() == R.id.imageButton_userAge) {
+                    try {
+                        int userAge = Integer.parseInt(input.getText().toString());
+                        textView_userAge.setText(String.valueOf(userAge));
+                    } catch (Exception e) {
+                        textView_userAge.setText("숫자만 입력해주세요.");
+                    }
+                }
+            }
+        });
+
+        alert_correctUserData.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // 취소됨
+            }
+        });
+
+        alert_correctUserData.show();
 
     }
 }
