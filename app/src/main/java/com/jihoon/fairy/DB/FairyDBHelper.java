@@ -17,7 +17,8 @@ public class FairyDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(ConstSQL.SQL_CREATE_TBL);
+        db.execSQL(ConstSQL.SQL_CREATE_TBL_EMOTIONS);
+        db.execSQL(ConstSQL.SQL_CREATE_TBL_USERDATA);
     }
 
     @Override

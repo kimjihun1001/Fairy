@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi;
 import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.Const.ConstSQL;
 import com.jihoon.fairy.Model.ModelEmotions;
+import com.jihoon.fairy.Model.ModelUserData;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,11 +17,12 @@ import java.util.ArrayList;
 
 public class FairyDBManager {
 
+    // 사진, 감정 데이터
     // 데이터 저장(INSERT INTO)
     public void save_values(FairyDBHelper fairyDBHelper, ModelEmotions modelEmotions) {
         SQLiteDatabase db = fairyDBHelper.getWritableDatabase() ;
 
-        String RegistrationDateTime = modelEmotions.getRegistrationDateTime().toString();
+        String registrationDateTime = modelEmotions.getRegistrationDateTime().toString();
         Double happinessDegree = modelEmotions.getHappinessDegree();
         Double sadnessDegree = modelEmotions.getSadnessDegree();
         Double neutralDegree = modelEmotions.getNeutralDegree();
@@ -33,7 +35,7 @@ public class FairyDBManager {
         // DB에 추가함.
         String sqlInsert = ConstSQL.SQL_INSERT_TBL_EMOTIONS +
                 "(" +
-                "'" + RegistrationDateTime + "', " +
+                "'" + registrationDateTime + "', " +
                 "" + happinessDegree + ", " +
                 "" + sadnessDegree + ", " +
                 "" + neutralDegree + ", " +
@@ -80,7 +82,7 @@ public class FairyDBManager {
             Const.List_ModelEmotions.add(modelEmotions);
         }
     }
-    // 데이터 조회(SELECT)
+    // 데이터 조회(SELECT) 날짜 역순으로 정렬된 채로 받아오기
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void load_sort_values(FairyDBHelper fairyDBHelper, ArrayList<ModelEmotions> Sort_Date_List_ModelEmotions) {
 
@@ -110,4 +112,60 @@ public class FairyDBManager {
             Sort_Date_List_ModelEmotions.add(modelEmotions);
         }
     }
+
+
+    // 사용자 정보 데이터
+    // 데이터 저장(INSERT INTO)
+    public void save_userData(FairyDBHelper fairyDBHelper, ModelUserData modelUserData) {
+        // 파라미터는 App의 Const.currentUserData로 하기
+
+        SQLiteDatabase db = fairyDBHelper.getWritableDatabase() ;
+
+        String userName = modelUserData.getUserName();
+        int userAge = modelUserData.getUserAge();
+
+        // 데이터가 있는지 없는지 판별하기 위해 cursor 넣었음.
+        Cursor cursor = db.rawQuery(ConstSQL.SQL_SELECT_TBL_USERDATA, null);
+        // DB에 사용자 정보가 있는 경우, UPDATE
+        if (cursor.moveToNext()) {
+            String sqlUpdate = ConstSQL.SQL_UPDATE_TBL_USERDATA_FRONT +
+                    ConstSQL.COL_USERNAME + "='" + userName + "', " +
+                    ConstSQL.COL_USERAGE + "=" + userAge +
+                    ConstSQL.SQL_UPDATE_TBL_USERDATA_BACK;
+            db.execSQL(sqlUpdate) ;
+        }
+        // DB에 사용자 정보가 없는 경우, INSERT
+        else {
+            String sqlInsert = ConstSQL.SQL_INSERT_TBL_USERDATA +
+                    "(" +
+                    "'" + userName + "', " +
+                    "" + userAge +
+                    ")";
+            db.execSQL(sqlInsert) ;
+        }
+
+    }
+    // 데이터 조회(SELECT)
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void load_userData(FairyDBHelper fairyDBHelper) {
+
+        SQLiteDatabase db = fairyDBHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery(ConstSQL.SQL_SELECT_TBL_USERDATA, null);
+        // DB에 사용자 정보가 있는 경우, App의 Const.currentUserData에 저장
+        if (cursor.moveToNext()) {
+            System.out.println("사용자 정보가 있음");
+            String userName = cursor.getString(1);
+            int userAge = cursor.getInt(2);
+
+            Const.currentUserData.setUserName(userName);
+            Const.currentUserData.setUserAge(userAge);
+        }
+        // DB에 사용자 정보가 없는 경우, App의 Const.currentUserData에 초기 정보 넣어두기
+        else {
+            System.out.println("사용자 정보가 없음");
+            Const.currentUserData.setUserName("이름을 입력해주세요");
+            Const.currentUserData.setUserAge(0);
+        }
+    }
+
 }

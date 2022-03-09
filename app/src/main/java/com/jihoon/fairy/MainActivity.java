@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -20,19 +18,14 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
-import android.content.res.AssetFileDescriptor;
-
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,7 +44,6 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.google.android.material.tabs.TabLayout;
@@ -63,17 +55,14 @@ import com.jihoon.fairy.Control.ExampleDataMaker;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
 import com.jihoon.fairy.Model.ModelEmotions;
+import com.jihoon.fairy.Model.ModelUserData;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
 
-import org.reactivestreams.Subscriber;
-import org.tensorflow.lite.schema.ReverseSequenceOptions;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -82,18 +71,12 @@ import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import io.reactivex.Observable;
@@ -107,10 +90,13 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     TextView textView_result;
     ImageView imageView_savedImage;
+    TextView textView_userName;
+    TextView textView_userAge;
 
     Disposable backgroundtask;
 
     SQLiteDatabase sqliteDB;
+    FairyDBManager fairyDBManager;
     FairyDBHelper fairyDBHelper;
 
     private final String apiEndpoint = "https://koreacentral.api.cognitive.microsoft.com/face/v1.0";
@@ -135,19 +121,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // 내부 저장소 경로
-        Const.InternalStorage = this.getFilesDir();
+        Const.internalStorage = this.getFilesDir();
         // AssetsManager
         Const.assetManager = getResources().getAssets();
+        // 사용자 정보 초기화
+        Const.currentUserData = new ModelUserData();
 
         imageView = findViewById(R.id.imageView);
         textView_result = findViewById(R.id.textView_result);
+        textView_userName = findViewById(R.id.textView_userName);
+        textView_userAge = findViewById(R.id.textView_userAge);
 
         // DB 받아줄 변수 설정
         sqliteDB = init_database();
         init_tables(); // 테이블 생성
 
         // DB 매니저 - 싱글톤 변경 필요함
-        FairyDBManager fairyDBManager = new FairyDBManager();
+        fairyDBManager = new FairyDBManager();
+
+        // DB 불러오기 + App의 Const.currentUserDate에 데이터 저장
+        fairyDBManager.load_userData(fairyDBHelper);
+        System.out.println("사용자 정보 불러오기");
 
         // DB 불러오기 + App의 Const List에 데이터 저장
         fairyDBManager.load_values(fairyDBHelper);
@@ -395,6 +389,14 @@ public class MainActivity extends AppCompatActivity {
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 3:
+                textView_userName.setText(Const.currentUserData.getUserName());
+                if (Const.currentUserData.getUserAge() == 0) {
+                    textView_userAge.setText("나이를 입력해주세요");
+                }
+                else {
+                    textView_userAge.setText(String.valueOf(Const.currentUserData.getUserAge()));
+                }
+
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_photoHistory.setVisibility(View.INVISIBLE);
@@ -459,7 +461,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String SaveImage(Bitmap imgBitmap, String imgName) {   // 선택한 이미지 내부 저장소에 저장
-        File tempFile = new File(Const.InternalStorage, imgName);    // 파일 경로와 이름 넣기
+        File tempFile = new File(Const.internalStorage, imgName);    // 파일 경로와 이름 넣기
         try {
             tempFile.createNewFile();   // 자동으로 빈 파일을 생성하기
             FileOutputStream out = new FileOutputStream(tempFile);  // 파일을 쓸 수 있는 스트림을 준비하기
@@ -471,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "파일 저장 실패", Toast.LENGTH_SHORT).show();
         }
-        return Const.InternalStorage + "/" + imgName;
+        return Const.internalStorage + "/" + imgName;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -750,9 +752,6 @@ public class MainActivity extends AppCompatActivity {
     public void Click_correctUserData(View view) {
         ImageButton imageButton = (ImageButton) view;
 
-        TextView textView_userName = findViewById(R.id.textView_userName);
-        TextView textView_userAge = findViewById(R.id.textView_userAge);
-
         AlertDialog.Builder alert_correctUserData = new AlertDialog.Builder(this);
 
         String alertTitle;
@@ -783,12 +782,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (imageButton.getId() == R.id.imageButton_userName) {
-                    textView_userName.setText(input.getText().toString());
+                    String userName = input.getText().toString();
+                    textView_userName.setText(userName);
+                    // DB 업데이트
+                    Const.currentUserData.setUserName(userName);
+                    fairyDBManager.save_userData(fairyDBHelper, Const.currentUserData);
                 }
                 else if (imageButton.getId() == R.id.imageButton_userAge) {
                     try {
                         int userAge = Integer.parseInt(input.getText().toString());
                         textView_userAge.setText(String.valueOf(userAge));
+                        // DB 업데이트
+                        Const.currentUserData.setUserAge(userAge);
+                        fairyDBManager.save_userData(fairyDBHelper, Const.currentUserData);
                     } catch (Exception e) {
                         textView_userAge.setText("숫자만 입력해주세요.");
                     }

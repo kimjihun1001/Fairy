@@ -1,18 +1,13 @@
 package com.jihoon.fairy.Control;
 
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jihoon.fairy.Const.Const;
-import com.jihoon.fairy.DB.FairyDBHelper;
-import com.jihoon.fairy.DB.FairyDBManager;
 import com.jihoon.fairy.Model.ModelEmotions;
 
 import java.io.File;
@@ -87,7 +82,7 @@ public class ExampleDataMaker extends AppCompatActivity {
 
     public String SaveImageToInternalStorage(Bitmap imgBitmap, String imgName) {   // 선택한 이미지 내부 저장소에 저장
 
-        File tempFile = new File(Const.InternalStorage, imgName);    // 파일 경로와 이름 넣기
+        File tempFile = new File(Const.internalStorage, imgName);    // 파일 경로와 이름 넣기
         try {
             tempFile.createNewFile();   // 자동으로 빈 파일을 생성하기
             FileOutputStream out = new FileOutputStream(tempFile);  // 파일을 쓸 수 있는 스트림을 준비하기
@@ -96,7 +91,7 @@ public class ExampleDataMaker extends AppCompatActivity {
         } catch (Exception e) {
 
         }
-        return Const.InternalStorage + "/" + imgName;
+        return Const.internalStorage + "/" + imgName;
     }
 }
 
