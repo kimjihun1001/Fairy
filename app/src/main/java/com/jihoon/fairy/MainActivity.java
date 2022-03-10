@@ -40,6 +40,8 @@ import android.widget.Toast;
 
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -291,6 +293,10 @@ public class MainActivity extends AppCompatActivity {
         chart.setDragYEnabled(false);
         chart.setScaleEnabled(false);
         chart.setPinchZoom(true);
+
+        // Legend에 대해 설정하기
+        Legend legend = chart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
 
         XAxis xAxis;
         xAxis = chart.getXAxis();
