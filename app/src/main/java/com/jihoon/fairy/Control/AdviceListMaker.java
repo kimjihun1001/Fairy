@@ -1,4 +1,4 @@
-package com.jihoon.fairy.Model;
+package com.jihoon.fairy.Control;
 
 import android.widget.Toast;
 
@@ -6,7 +6,7 @@ import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 
-public class FairyAdvice {
+public class AdviceListMaker {
 
     int random = 0;
     String advice = null;

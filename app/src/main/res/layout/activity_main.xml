@@ -24,7 +24,8 @@
                 android:id="@+id/textView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
                 android:text="오늘의 기분은 어떤가요?"
                 android:textAlignment="center"
                 android:textSize="20sp" />
@@ -32,9 +33,11 @@
             <Button
                 android:id="@+id/button_upload"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="75dp"
                 android:onClick="Click_button_upload"
-                android:text="사진 업로드" />
+                android:text="사진 업로드"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -51,9 +54,11 @@
             <Button
                 android:id="@+id/button_result"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="75dp"
                 android:onClick="Click_button_result"
-                android:text="결과 확인" />
+                android:text="결과 확인"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/textView_result"
@@ -86,11 +91,14 @@
                 <TextView
                     android:id="@+id/textView_advice"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp"
+                    android:layout_height="100dp"
                     android:layout_margin="10dp"
+                    android:background="@drawable/border_advice"
+                    android:gravity="center"
+                    android:padding="10dp"
                     android:textAlignment="center"
-                    android:background="@drawable/border_advice">
-                </TextView>
+                    android:textSize="20sp"
+                    android:textStyle="bold"></TextView>
 
                 <ListView
                     android:id="@+id/listView_advertisement"

@@ -15,9 +15,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -41,7 +38,6 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -59,15 +55,12 @@ import com.jihoon.fairy.Control.ExampleDataMaker;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
 import com.jihoon.fairy.Model.Advertisement;
-import com.jihoon.fairy.Model.FairyAdvice;
+import com.jihoon.fairy.Control.AdviceListMaker;
 import com.jihoon.fairy.Model.ModelEmotions;
 import com.jihoon.fairy.Model.ModelUserData;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
-
-import org.checkerframework.checker.units.qual.A;
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -221,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://echung93.tistory.com//"));
+                intent.setData(Uri.parse(view.getTag().toString()));
                 startActivity(intent);
             }
         });
@@ -387,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
         String advice;
         count = 0;
 
-        FairyAdvice fairyAdvice = new FairyAdvice();
+        AdviceListMaker adviceListMaker = new AdviceListMaker();
         TextView textView = findViewById(R.id.textView_advice);
 
         if(emotionOfsad.size() > 14){
@@ -404,15 +397,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (count <= 5){
-            advice = fairyAdvice.GoodAdvice();
+            advice = adviceListMaker.GoodAdvice();
         }
 
         else if (count < 10){
-            advice = fairyAdvice.NormalAdvice();
+            advice = adviceListMaker.NormalAdvice();
         }
 
         else{
-            advice = fairyAdvice.SadAdvice();
+            advice = adviceListMaker.SadAdvice();
         }
 
         textView.setText(advice);
@@ -885,9 +878,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void setData(){
         Advertisement advertisement = new Advertisement();
-        advertisement.setLogo("고구마");
-        advertisement.setTitle("이충훈");
-        advertisement.setDescription("린랩");
 
         advertisementListViewAdapter.addItem(advertisement);
     }

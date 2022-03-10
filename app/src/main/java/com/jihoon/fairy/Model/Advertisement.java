@@ -5,11 +5,11 @@ import android.graphics.drawable.Drawable;
 public class Advertisement {
 
     //logo (광고 이미지)
-    private String logo;
-    public String getLogo() {
+    private int logo;
+    public int getLogo() {
         return this.logo;
     }
-    public void setLogo(String logo) {
+    public void setLogo(int logo) {
         this.logo = logo;
     }
 
@@ -31,4 +31,12 @@ public class Advertisement {
         this.description = description;
     }
 
+    //link (연결 링크)
+    private String link;
+    public String getLink() {
+        return this.link;
+    }
+    public void setLink(String link) {
+        this.link = link;
+    }
 }

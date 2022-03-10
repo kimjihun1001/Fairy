@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 
 import com.jihoon.fairy.Const.Const;
+import com.jihoon.fairy.Control.AdvertisementListMaker;
 import com.jihoon.fairy.Model.Advertisement;
 import com.jihoon.fairy.Model.ModelEmotions;
 import com.jihoon.fairy.R;
@@ -50,13 +51,14 @@ public class AdvertisementListViewAdapter extends BaseAdapter {
         TextView title = (TextView) convertView.findViewById(R.id.ad_Title) ;
         TextView description = (TextView) convertView.findViewById(R.id.ad_description);
 
-        Advertisement advertisement = listViewItemList.get(position);
+        AdvertisementListMaker advertisementListMaker = new AdvertisementListMaker();
+        Advertisement advertisement = advertisementListMaker.GetAdvertisement();
 
-        logoImageView.setImageResource(R.drawable.smile);
+        logoImageView.setImageResource(advertisement.getLogo());
         title.setText(advertisement.getTitle());
         description.setText(advertisement.getDescription());
+        convertView.setTag(advertisement.getLink());
 //        Bitmap savedImageBitmap = BitmapFactory.decodeFile(advertisement.getLogo());
-
 
         return convertView;
     }
