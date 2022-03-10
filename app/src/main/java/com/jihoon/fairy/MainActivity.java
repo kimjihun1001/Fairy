@@ -553,6 +553,8 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void Click_button_result(View view) {
 
+        if(bmRotated != null)
+        {
         // 객체 생성
         ModelEmotions currentModelEmotions = new ModelEmotions();
 
@@ -585,7 +587,14 @@ public class MainActivity extends AppCompatActivity {
         fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
 
         // 화면에 표시하기
-        ShowResult(currentModelEmotions);
+        ShowResult(currentModelEmotions);}
+
+         else
+        {
+            Toast.makeText(getApplicationContext(),"사진을 업로드해주세요.",Toast.LENGTH_SHORT).show();
+        }
+
+
     }
 
     private void ShowResult(ModelEmotions modelEmotions) {
