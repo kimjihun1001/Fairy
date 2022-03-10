@@ -88,16 +88,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:layout_margin="10dp"
-<<<<<<< HEAD
-                    android:background="#F44336"
                     android:textAlignment="center"
-                    >
-                </TextView>
-=======
                     android:background="@drawable/border_advice">
-
-                </ListView>
->>>>>>> 082baf6c5b71e4b4b78793e2d735864607c373bb
+                </TextView>
 
                 <ListView
                     android:id="@+id/listView_advertisement"
