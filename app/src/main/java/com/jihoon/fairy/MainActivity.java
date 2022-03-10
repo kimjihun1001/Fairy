@@ -138,16 +138,10 @@ public class MainActivity extends AppCompatActivity {
         textView_userName = findViewById(R.id.textView_userName);
         textView_userAge = findViewById(R.id.textView_userAge);
 
-<<<<<<< Updated upstream
         advertisementListViewAdapter = new AdvertisementListViewAdapter();
 
-        // DB 받아줄 변수 설정
-        sqliteDB = init_database();
-        init_tables(); // 테이블 생성
-=======
         // DBHelper 초기화
         init_tables();
->>>>>>> Stashed changes
 
         // DB 매니저 - 싱글톤 변경 필요함
         fairyDBManager = new FairyDBManager();
