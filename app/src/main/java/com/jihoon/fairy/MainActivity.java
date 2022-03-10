@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -48,12 +49,14 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
+import com.jihoon.fairy.Adapter.AdvertisementListViewAdapter;
 import com.jihoon.fairy.Adapter.HistoryRecyclerViewAdapter;
 import com.jihoon.fairy.Adapter.PhotoHistoryListViewAdapter;
 import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.Control.ExampleDataMaker;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
+import com.jihoon.fairy.Model.Advertisement;
 import com.jihoon.fairy.Model.ModelEmotions;
 import com.jihoon.fairy.Model.ModelUserData;
 import com.microsoft.projectoxford.face.FaceServiceClient;
@@ -89,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     TextView textView_result;
-    ImageView imageView_savedImage;
     TextView textView_userName;
     TextView textView_userAge;
 
@@ -111,6 +113,11 @@ public class MainActivity extends AppCompatActivity {
     ListView history_ListView;
     PhotoHistoryListViewAdapter history_Adapter;
 
+    //광고
+    AdvertisementListViewAdapter advertisementListViewAdapter;
+    ArrayList<Advertisement> advertisements;
+    ListView listView;
+
     // 그래프 그리기
     LineChart chart;
 
@@ -131,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
         textView_result = findViewById(R.id.textView_result);
         textView_userName = findViewById(R.id.textView_userName);
         textView_userAge = findViewById(R.id.textView_userAge);
+
+        advertisementListViewAdapter = new AdvertisementListViewAdapter();
 
         // DB 받아줄 변수 설정
         sqliteDB = init_database();
@@ -195,6 +204,17 @@ public class MainActivity extends AppCompatActivity {
         history_Adapter = new PhotoHistoryListViewAdapter();
         history_ListView = (ListView) findViewById(R.id.listView_historyPhoto);
         history_ListView.setAdapter(history_Adapter);
+
+        AddAdvertiesment();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://echung93.tistory.com//"));
+                startActivity(intent);
+            }
+        });
     }
 
     // 그래프 그리기
@@ -811,5 +831,23 @@ public class MainActivity extends AppCompatActivity {
 
         alert_correctUserData.show();
 
+    }
+
+    public void AddAdvertiesment(){
+        advertisementListViewAdapter = new AdvertisementListViewAdapter();
+        listView = (ListView) findViewById(R.id.listView_advertisement);
+
+        setData();
+
+        listView.setAdapter(advertisementListViewAdapter);
+    }
+
+    private void setData(){
+        Advertisement advertisement = new Advertisement();
+        advertisement.setLogo("고구마");
+        advertisement.setTitle("이충훈");
+        advertisement.setDescription("린랩");
+
+        advertisementListViewAdapter.addItem(advertisement);
     }
 }
