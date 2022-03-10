@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Chart Style
-        chart.setBackgroundColor(Color.rgb(254, 247, 235));
+        // chart.setBackgroundColor(Color.rgb(254, 247, 235));
         chart.getDescription().setEnabled(false);
         chart.setTouchEnabled(true);
         chart.setDrawGridBackground(false);

@@ -80,14 +80,15 @@
                     android:id="@+id/chart"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
-                    android:layout_margin="10dp" />
+                    android:layout_margin="10dp"
+                    android:background="@drawable/border_chart" />
 
                 <ListView
                     android:id="@+id/listView_advice"
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:layout_margin="10dp"
-                    android:background="#F44336">
+                    android:background="@drawable/border_advice">
 
                 </ListView>
 
@@ -96,7 +97,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:layout_margin="10dp"
-                    android:background="#E91E63" />
+                    android:background="@drawable/border_advertisement" />
 
             </LinearLayout>
         </ScrollView>
