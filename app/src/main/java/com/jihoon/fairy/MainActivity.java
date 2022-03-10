@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
 
     Disposable backgroundtask;
 
-    SQLiteDatabase sqliteDB;
     FairyDBManager fairyDBManager;
     FairyDBHelper fairyDBHelper;
 
@@ -139,11 +138,16 @@ public class MainActivity extends AppCompatActivity {
         textView_userName = findViewById(R.id.textView_userName);
         textView_userAge = findViewById(R.id.textView_userAge);
 
+<<<<<<< Updated upstream
         advertisementListViewAdapter = new AdvertisementListViewAdapter();
 
         // DB 받아줄 변수 설정
         sqliteDB = init_database();
         init_tables(); // 테이블 생성
+=======
+        // DBHelper 초기화
+        init_tables();
+>>>>>>> Stashed changes
 
         // DB 매니저 - 싱글톤 변경 필요함
         fairyDBManager = new FairyDBManager();
@@ -538,26 +542,6 @@ public class MainActivity extends AppCompatActivity {
 
         textView_result.setText("기쁨: " + Const.ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()) + "슬픔: " + Const.ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()) + "무표정: " + Const.ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
 
-    }
-
-    private SQLiteDatabase init_database() {
-        SQLiteDatabase db = null;
-
-        File file = new File(getFilesDir(), "contact.db");
-
-        System.out.println("PATH : " + file.toString());
-
-        try {
-            db = SQLiteDatabase.openOrCreateDatabase(file, null);
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        }
-
-        if (db == null) {
-            System.out.println("DB creation failed." + file.getAbsolutePath());
-        }
-
-        return db;
     }
 
     private void init_tables() {

@@ -47,7 +47,7 @@ public class ConstSQL {
             "(" +
             COL_NO +        " INTEGER PRIMARY KEY AUTOINCREMENT" + ", " +
             COL_USERNAME +  " TEXT NOT NULL"                              + ", " +
-            COL_USERAGE +   " INT NOT NULL"                               + ")";
+            COL_USERAGE +   " INTEGER NOT NULL"                               + ")";
 
     // DB INSERT OR UPDATE
     // INSERT INTO USERDATA_T(USERNAME, USERAGE) VALUES
