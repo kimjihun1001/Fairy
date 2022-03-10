@@ -57,11 +57,15 @@ import com.jihoon.fairy.Control.ExampleDataMaker;
 import com.jihoon.fairy.DB.FairyDBHelper;
 import com.jihoon.fairy.DB.FairyDBManager;
 import com.jihoon.fairy.Model.Advertisement;
+import com.jihoon.fairy.Model.FairyAdvice;
 import com.jihoon.fairy.Model.ModelEmotions;
 import com.jihoon.fairy.Model.ModelUserData;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
+
+import org.checkerframework.checker.units.qual.A;
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -107,7 +111,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap bmRotated;
 
-    private double happy, sad, neutral;
+    private double happy;
+    private double sad;
+    private double neutral;
 
     ListView history_ListView;
     PhotoHistoryListViewAdapter history_Adapter;
@@ -119,6 +125,10 @@ public class MainActivity extends AppCompatActivity {
 
     // 그래프 그리기
     LineChart chart;
+
+    //감정 모음
+    int count;
+    private ArrayList<Integer> emotionOfsad;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -219,8 +229,10 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void drawChart() {
         chart = (LineChart) findViewById(R.id.chart);
+
         List<Entry> happyEntries = new ArrayList<Entry>();
         List<Entry> sadEntries = new ArrayList<Entry>();
+        emotionOfsad = new ArrayList<Integer>();
 
         // 날짜별로 데이터를 묶기 위해 map을 만들기
         Map<LocalDate, List<ModelEmotions>> map = new HashMap<>();
@@ -271,15 +283,21 @@ public class MainActivity extends AppCompatActivity {
             averageOfHappy = sumOfHappy / sizeOfList;
             averageOfSad = sumOfSad / sizeOfList;
 
+
+
+
+
             // 100 곱하고 소수점 둘째자리에서 반올림 - 예: 0.123456 -> 1234.56 -> 1235 -> 12.35
             float valueOfY_happy = Math.round(averageOfHappy * 10000)/100;
             float valueOfY_sad = Math.round(averageOfSad * 10000)/100;
+
+            //리스트에 슬픔 감정 추가
+            emotionOfsad.add((int) valueOfY_sad);
 
             // 데이터 넣기
             happyEntries.add(new Entry(valueOfX, valueOfY_happy));
             sadEntries.add(new Entry(valueOfX, valueOfY_sad));
             valueOfX += 1;
-
         }
 
         // Chart Style
@@ -356,6 +374,44 @@ public class MainActivity extends AppCompatActivity {
         chart.moveViewToX(dataSet.getEntryCount());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void showAdvice(){
+        int size;
+        int num = 0;
+        String advice;
+        count = 0;
+
+        FairyAdvice fairyAdvice = new FairyAdvice();
+        TextView textView = findViewById(R.id.textView_advice);
+
+        if(emotionOfsad.size() > 14){
+
+            size = emotionOfsad.size() - 14 ;
+            num += size;
+        }
+
+        for (int i = emotionOfsad.size() - 1; i >= num; i-- ){
+
+           if(emotionOfsad.get(i) > 10){
+               count++;
+           }
+        }
+
+        if (count <= 5){
+            advice = fairyAdvice.GoodAdvice();
+        }
+
+        else if (count < 10){
+            advice = fairyAdvice.NormalAdvice();
+        }
+
+        else{
+            advice = fairyAdvice.SadAdvice();
+        }
+
+        textView.setText(advice);
+    }
+
     // 탭 선택 시, 표시 화면 변경하기
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void ChangeView(int index) {
@@ -373,6 +429,7 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 // TODO : 그래프 새로고침
                 drawChart();
+                showAdvice();
 
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.VISIBLE);
@@ -811,7 +868,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void AddAdvertiesment(){
+    private void AddAdvertiesment(){
         advertisementListViewAdapter = new AdvertisementListViewAdapter();
         listView = (ListView) findViewById(R.id.listView_advertisement);
 

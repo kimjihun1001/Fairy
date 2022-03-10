@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="visible">
 
             <TextView
                 android:id="@+id/textView6"
@@ -68,7 +68,7 @@
             android:id="@+id/scrollView_history"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <LinearLayout
                 android:id="@+id/layout_history"
@@ -82,14 +82,15 @@
                     android:layout_height="300dp"
                     android:layout_margin="10dp" />
 
-                <ListView
-                    android:id="@+id/listView_advice"
+                <TextView
+                    android:id="@+id/textView_advice"
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:layout_margin="10dp"
-                    android:background="#F44336">
-
-                </ListView>
+                    android:background="#F44336"
+                    android:textAlignment="center"
+                    >
+                </TextView>
 
                 <ListView
                     android:id="@+id/listView_advertisement"
