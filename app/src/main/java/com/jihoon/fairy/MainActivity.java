@@ -208,16 +208,6 @@ public class MainActivity extends AppCompatActivity {
         history_ListView = (ListView) findViewById(R.id.listView_historyPhoto);
         history_ListView.setAdapter(history_Adapter);
 
-        AddAdvertiesment();
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(view.getTag().toString()));
-                startActivity(intent);
-            }
-        });
     }
 
     // 그래프 그리기
@@ -322,7 +312,6 @@ public class MainActivity extends AppCompatActivity {
         xAxis.setSpaceMin(1f);
         // 축을 숫자가 아니라 날짜로 표시
         xAxis.setValueFormatter(new IndexAxisValueFormatter(List_localDateStr));
-        // TODO : 이게 데이터 수가 많아지면 오류가 생기네 자꾸...
         // 축 레이블 표시 간격 : 2로 하면 2칸마다 레이블 표시
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
@@ -426,9 +415,12 @@ public class MainActivity extends AppCompatActivity {
                 layout_setting.setVisibility(View.INVISIBLE);
                 break;
             case 1:
-                // TODO : 그래프 새로고침
+                // 그래프 새로고침
                 drawChart();
+                // 조언 새로고침
                 showAdvice();
+                // 광고 새로고침
+                showAdvertiesment();
 
                 layout_home.setVisibility(View.INVISIBLE);
                 scrollView_history.setVisibility(View.VISIBLE);
@@ -876,18 +868,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void AddAdvertiesment(){
+    private void showAdvertiesment(){
         advertisementListViewAdapter = new AdvertisementListViewAdapter();
         listView = (ListView) findViewById(R.id.listView_advertisement);
-
-        setData();
-
         listView.setAdapter(advertisementListViewAdapter);
+
+        advertisementListViewAdapter.addItem(new Advertisement());
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(view.getTag().toString()));
+                startActivity(intent);
+            }
+        });
+
     }
 
-    private void setData(){
-        Advertisement advertisement = new Advertisement();
-
-        advertisementListViewAdapter.addItem(advertisement);
-    }
 }

@@ -49,10 +49,10 @@ public class PhotoHistoryListViewAdapter extends BaseAdapter {
         Bitmap savedImageBitmap = BitmapFactory.decodeFile(modelEmotions.getImagePath());
 
         photoImageView.setImageBitmap(savedImageBitmap);
-        registrationDateTime.setText(modelEmotions.getRegistrationDateTime().toString());
-        happinessDegree.setText("기쁨" + Const.ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()));
-        sadnessDegree.setText("슬픔" + Const.ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()));
-        neutralDegree.setText("무표정" + Const.ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
+        registrationDateTime.setText(modelEmotions.getRegistrationDateTime().toString().replace("T", " ").substring(0, 18));
+        happinessDegree.setText(Const.ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()));
+        sadnessDegree.setText(Const.ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()));
+        neutralDegree.setText(Const.ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
 
         return convertView;
     }

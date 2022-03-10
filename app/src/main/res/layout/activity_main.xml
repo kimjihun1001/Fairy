@@ -18,14 +18,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:text="오늘의 기분은 어떤가요?"
                 android:textAlignment="center"
                 android:textSize="20sp" />
@@ -34,6 +34,8 @@
                 android:id="@+id/button_upload"
                 android:layout_width="match_parent"
                 android:layout_height="75dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:onClick="Click_button_upload"
                 android:text="사진 업로드"
                 android:textSize="20sp"
@@ -55,6 +57,8 @@
                 android:id="@+id/button_result"
                 android:layout_width="match_parent"
                 android:layout_height="75dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:onClick="Click_button_result"
                 android:text="결과 확인"
                 android:textSize="20sp"
@@ -115,17 +119,23 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="visible">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView_historyDate"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"></androidx.recyclerview.widget.RecyclerView>
+                android:layout_height="100dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/border_chart"
+                android:foregroundGravity="center_vertical"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"></androidx.recyclerview.widget.RecyclerView>
 
             <ListView
                 android:id="@+id/listView_historyPhoto"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"></ListView>
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"></ListView>
         </LinearLayout>
 
         <LinearLayout
