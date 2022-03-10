@@ -1,5 +1,5 @@
 package com.jihoon.fairy;
-// Ver 0.5
+// Ver 1.0
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -158,19 +158,19 @@ public class MainActivity extends AppCompatActivity {
         // DB 불러오기 + App의 Const List에 데이터 저장
         fairyDBManager.load_values(fairyDBHelper);
 
-        // 이미 초기 예시 데이터 추가했는지 확인하기
-        for (ModelEmotions modelEmotions : Const.List_ModelEmotions) {
-            if (modelEmotions.getImageName().equals("2022-02-05T10:30:30")) {
-                Const.isInitialDataAdded = true;
-            }
-        }
-        // 초기 예시 데이터 만들기 + DB에 추가 + App의 Const List에 데이터 저장
-        ExampleDataMaker exampleDataMaker = new ExampleDataMaker();
-        if (Const.isInitialDataAdded == false) {
-            for (ModelEmotions modelEmotions1 : exampleDataMaker.MakeExampleData()) {
-                fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
-            }
-        }
+//        // 이미 초기 예시 데이터 추가했는지 확인하기
+//        for (ModelEmotions modelEmotions : Const.List_ModelEmotions) {
+//            if (modelEmotions.getImageName().equals("2022-02-05T10:30:30")) {
+//                Const.isInitialDataAdded = true;
+//            }
+//        }
+//        // 초기 예시 데이터 만들기 + DB에 추가 + App의 Const List에 데이터 저장
+//        ExampleDataMaker exampleDataMaker = new ExampleDataMaker();
+//        if (Const.isInitialDataAdded == false) {
+//            for (ModelEmotions modelEmotions1 : exampleDataMaker.MakeExampleData()) {
+//                fairyDBManager.save_values(fairyDBHelper, modelEmotions1);
+//            }
+//        }
 
         //Azure Face API 사용
         faceServiceClient = new FaceServiceRestClient(apiEndpoint, subscriptionKey);
@@ -473,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 이미지 선택 누르면 실행됨 이미지 고를 갤러리 오픈
     public void Click_button_upload(View view) {
-        Toast.makeText(this, "업로드 버튼 클릭", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, "업로드 버튼 클릭", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
