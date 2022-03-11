@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "298273808262",
+    "project_id": "fairy-6ff6e",
+    "storage_bucket": "fairy-6ff6e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:298273808262:android:70ba5ab3dfb616a27a1607",
+        "android_client_info": {
+          "package_name": "com.jihoon.fairy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "298273808262-td8vq90g07rrt7eo9etvnkrsknk1c554.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz-rDsxL8tFZS0jLD9bQtK1eRNc2htix4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "298273808262-td8vq90g07rrt7eo9etvnkrsknk1c554.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

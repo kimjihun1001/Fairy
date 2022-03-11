@@ -87,6 +87,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
@@ -120,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
 
     // 그래프 그리기
     LineChart chart;
+
+    // Firebase - Google Analytics
+    FirebaseAnalytics analytics;
 
     //감정 모음
     int count;
@@ -158,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         // DB 불러오기 + App의 Const List에 데이터 저장
         fairyDBManager.load_values(fairyDBHelper);
 
+        // ⭐️ 출시 버전에서는 주석 처리하기 - 초기 데이터 추가 기능
 //        // 이미 초기 예시 데이터 추가했는지 확인하기
 //        for (ModelEmotions modelEmotions : Const.List_ModelEmotions) {
 //            if (modelEmotions.getImageName().equals("2022-02-05T10:30:30")) {
@@ -413,6 +419,14 @@ public class MainActivity extends AppCompatActivity {
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_photoHistory.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
+
+                // Google Analytics
+                analytics = FirebaseAnalytics.getInstance(this);
+                Bundle bundle = new Bundle(); // logEvent()까지 추가
+                bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "홈 탭 클릭");
+                bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "Home Tab");
+                analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+//                Toast.makeText(MainActivity.this, String.valueOf(bundle), Toast.LENGTH_SHORT).show();
                 break;
             case 1:
                 // 그래프 새로고침
@@ -426,6 +440,13 @@ public class MainActivity extends AppCompatActivity {
                 scrollView_history.setVisibility(View.VISIBLE);
                 layout_photoHistory.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
+
+                // Google Analytics
+                analytics = FirebaseAnalytics.getInstance(this);
+                Bundle bundle2 = new Bundle(); // logEvent()까지 추가
+                bundle2.putString(FirebaseAnalytics.Param.SCREEN_NAME, "기록 탭 클릭");
+                bundle2.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "History Tab");
+                analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle2);
                 break;
             case 2:
                 // 리사이클러뷰 아이템 생성
@@ -453,6 +474,13 @@ public class MainActivity extends AppCompatActivity {
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_photoHistory.setVisibility(View.VISIBLE);
                 layout_setting.setVisibility(View.INVISIBLE);
+
+                // Google Analytics
+                analytics = FirebaseAnalytics.getInstance(this);
+                Bundle bundle3 = new Bundle(); // logEvent()까지 추가
+                bundle3.putString(FirebaseAnalytics.Param.SCREEN_NAME, "사진 탭 클릭");
+                bundle3.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "Photo Tab");
+                analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle3);
                 break;
             case 3:
                 textView_userName.setText(Const.currentUserData.getUserName());
@@ -467,6 +495,13 @@ public class MainActivity extends AppCompatActivity {
                 scrollView_history.setVisibility(View.INVISIBLE);
                 layout_photoHistory.setVisibility(View.INVISIBLE);
                 layout_setting.setVisibility(View.VISIBLE);
+
+                // Google Analytics
+                analytics = FirebaseAnalytics.getInstance(this);
+                Bundle bundle4 = new Bundle(); // logEvent()까지 추가
+                bundle4.putString(FirebaseAnalytics.Param.SCREEN_NAME, "설정 탭 클릭");
+                bundle4.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "Setting Tab");
+                analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle4);
                 break;
         }
     }
@@ -545,8 +580,7 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void Click_button_result(View view) {
 
-        if(bmRotated != null)
-        {
+        if(bmRotated != null) {
         // 객체 생성
         ModelEmotions currentModelEmotions = new ModelEmotions();
 
@@ -579,10 +613,9 @@ public class MainActivity extends AppCompatActivity {
         fairyDBManager.save_values(fairyDBHelper, currentModelEmotions);
 
         // 화면에 표시하기
-        ShowResult(currentModelEmotions);}
-
-         else
-        {
+        ShowResult(currentModelEmotions);
+        }
+        else {
             Toast.makeText(getApplicationContext(),"사진을 업로드해주세요.",Toast.LENGTH_SHORT).show();
         }
 
@@ -593,6 +626,12 @@ public class MainActivity extends AppCompatActivity {
 
         textView_result.setText("기쁨: " + Const.ConvertDoubleToPercentage(modelEmotions.getHappinessDegree()) + "슬픔: " + Const.ConvertDoubleToPercentage(modelEmotions.getSadnessDegree()) + "무표정: " + Const.ConvertDoubleToPercentage(modelEmotions.getNeutralDegree()));
 
+        // Google Analytics
+        analytics = FirebaseAnalytics.getInstance(this);
+        Bundle bundle = new Bundle(); // logEvent()까지 추가
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "결과 보기 클릭");
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "Click");
+        analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
     }
 
     private void init_tables() {
@@ -878,6 +917,13 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                // Google Analytics
+                analytics = FirebaseAnalytics.getInstance(MainActivity.this);
+                Bundle bundle = new Bundle(); // logEvent()까지 추가
+                bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, view.getTag().toString());
+                bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "Link");
+                analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(view.getTag().toString()));
                 startActivity(intent);
