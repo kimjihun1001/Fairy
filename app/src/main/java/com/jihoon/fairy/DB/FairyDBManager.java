@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi;
 
 import com.jihoon.fairy.Const.Const;
 import com.jihoon.fairy.Const.ConstSQL;
+import com.jihoon.fairy.MainActivity;
 import com.jihoon.fairy.Model.ModelEmotions;
 import com.jihoon.fairy.Model.ModelUserData;
 

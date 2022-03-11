@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services' // Firebase 연결
 }
 
 android {
@@ -22,7 +23,7 @@ android {
 
     buildTypes {
         release {
-            // 이걸 넣고 앱 번들을 만들어야 구글플레이스토어에 업로드 가능
+            // 이걸 false로 하고 앱 번들을 만들어야 구글플레이스토어에 업로드 가능
             debuggable false
 
             minifyEnabled false
@@ -54,7 +55,16 @@ dependencies {
     // MPAndroidChart : 그래프 그리기 위한 라이브러리
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
-    // AsyncTask는 Android 11 버전부터 사용 불가해서 RxJava를 사용해보려고 했으나 실패.
+    // AsyncTask는 Android 11 버전부터 사용 불가해서 RxJava를 사용.
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.15'
+
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:29.1.0')
+    // Add the dependency for the Firebase SDK for Google Analytics
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation 'com.google.firebase:firebase-analytics'
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+
 }
