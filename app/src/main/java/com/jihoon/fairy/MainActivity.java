@@ -220,7 +220,6 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void drawChart() {
         chart = (LineChart) findViewById(R.id.chart);
-
         List<Entry> happyEntries = new ArrayList<Entry>();
         List<Entry> sadEntries = new ArrayList<Entry>();
         emotionOfsad = new ArrayList<Integer>();
@@ -273,10 +272,6 @@ public class MainActivity extends AppCompatActivity {
             float sizeOfList = map.get(localDate).size();
             averageOfHappy = sumOfHappy / sizeOfList;
             averageOfSad = sumOfSad / sizeOfList;
-
-
-
-
 
             // 100 곱하고 소수점 둘째자리에서 반올림 - 예: 0.123456 -> 1234.56 -> 1235 -> 12.35
             float valueOfY_happy = Math.round(averageOfHappy * 10000)/100;
@@ -360,7 +355,6 @@ public class MainActivity extends AppCompatActivity {
 
         LineData lineData = new LineData(dataSet, dataSet2);
         chart.setData(lineData);
-        chart.invalidate(); // refresh -> 안됨 ...
 
         // 최대 x좌표 기준으로 몇개를 보여줄지
         chart.setVisibleXRange(5, 5);
@@ -429,8 +423,11 @@ public class MainActivity extends AppCompatActivity {
 //                Toast.makeText(MainActivity.this, String.valueOf(bundle), Toast.LENGTH_SHORT).show();
                 break;
             case 1:
-                // 그래프 새로고침
+                // 그래프 그리기 - onCreate()에서 그리면 안됨.
                 drawChart();
+                // 그래프 새로고침
+                chart.invalidate();
+
                 // 조언 새로고침
                 showAdvice();
                 // 광고 새로고침
@@ -449,6 +446,11 @@ public class MainActivity extends AppCompatActivity {
                 analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle2);
                 break;
             case 2:
+                // 아무것도 없으면
+                if (Const.List_ModelEmotions.size() == 0 || Const.List_ModelEmotions == null) {
+                    Toast.makeText(this, "사진이 없습니다.\n홈 탭에서 사진을 업로드해보세요.", Toast.LENGTH_SHORT).show();
+                }
+
                 // 리사이클러뷰 아이템 생성
                 ArrayList<ModelEmotions> Sort_Date_List_ModelEmotions = new ArrayList<ModelEmotions>();
                 FairyDBManager fairyDBManager = new FairyDBManager();
